@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOX Command Guide - Dokkan Bot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+            background: #0f172a;
+            color: #1e293b;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .language-selector {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 8px;
+            background: white;
+            padding: 8px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .language-selector {
+                top: 10px;
+                right: 10px;
+                gap: 4px;
+                padding: 6px;
+            }
+        }
+        
+        .lang-btn {
+            padding: 8px 16px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            color: #475569;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        @media (max-width: 768px) {
+            .lang-btn {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+        }
+        
+        .lang-btn:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+        
+        .lang-btn.active {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            width: 100%;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
+            color: white;
+            padding: 80px 40px 60px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                padding: 60px 20px 40px;
+            }
+        }
+        
+        .header h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: -0.5px;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 32px;
+            }
+        }
+        
+        .header p {
+            font-size: 20px;
+            opacity: 0.95;
+            font-weight: 400;
+        }
+        
+        @media (max-width: 768px) {
+            .header p {
+                font-size: 16px;
+            }
+        }
+        
+        .content {
+            padding: 60px 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                padding: 40px 20px;
+            }
+        }
+        
+        .section {
+            margin-bottom: 80px;
+        }
+        
+        .section h2 {
+            color: #1e293b;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 3px solid #3b82f6;
+        }
+        
+        @media (max-width: 768px) {
+            .section h2 {
+                font-size: 24px;
+                margin-bottom: 24px;
+            }
+        }
+        
+        .section h3 {
+            color: #334155;
+            font-size: 24px;
+            font-weight: 600;
+            margin: 40px 0 20px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .section h3 {
+                font-size: 20px;
+                margin: 30px 0 16px 0;
+            }
+        }
+        
+        .command-box {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            padding: 24px;
+            margin: 24px 0;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e40af;
+        }
+        
+        @media (max-width: 768px) {
+            .command-box {
+                padding: 16px;
+                font-size: 18px;
+            }
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin: 32px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .feature-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+                margin: 24px 0;
+            }
+        }
+        
+        .feature-card {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            padding: 32px;
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+        
+        @media (max-width: 768px) {
+            .feature-card {
+                padding: 20px;
+            }
+        }
+        
+        .feature-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.1);
+            transform: translateY(-4px);
+        }
+        
+        .feature-card h4 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #1e293b;
+        }
+        
+        .feature-card p {
+            color: #475569;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+        
+        .step-list {
+            counter-reset: step-counter;
+            list-style: none;
+            padding: 0;
+        }
+        
+        .step-list li {
+            counter-increment: step-counter;
+            margin: 24px 0;
+            padding: 28px;
+            background: #f8fafc;
+            border-radius: 12px;
+            position: relative;
+            padding-left: 100px;
+            border: 2px solid #e2e8f0;
+        }
+        
+        @media (max-width: 768px) {
+            .step-list li {
+                padding: 20px;
+                padding-left: 80px;
+            }
+        }
+        
+        .step-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 28px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #3b82f6;
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 24px;
+        }
+        
+        @media (max-width: 768px) {
+            .step-list li::before {
+                left: 16px;
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+        }
+        
+        .step-list li strong {
+            display: block;
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #1e293b;
+        }
+        
+        .button-demo {
+            display: inline-block;
+            padding: 14px 32px;
+            margin: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 16px;
+        }
+        
+        @media (max-width: 768px) {
+            .button-demo {
+                padding: 12px 24px;
+                margin: 8px;
+                font-size: 14px;
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+                max-width: 200px;
+            }
+        }
+        
+        .btn-awaken {
+            background: #10b981;
+            color: white;
+            border: 2px solid #10b981;
+        }
+        
+        .btn-awaken:hover {
+            background: #059669;
+            border-color: #059669;
+        }
+        
+        .btn-awaken2 {
+            background: #8b5cf6;
+            color: white;
+            border: 2px solid #8b5cf6;
+        }
+        
+        .btn-awaken2:hover {
+            background: #7c3aed;
+            border-color: #7c3aed;
+        }
+        
+        .btn-clear {
+            background: white;
+            color: #ef4444;
+            border: 2px solid #ef4444;
+        }
+        
+        .btn-clear:hover {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .warning-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 24px;
+            margin: 24px 0;
+            border-radius: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .warning-box {
+                padding: 16px;
+                margin: 16px 0;
+            }
+        }
+        
+        .warning-box h4 {
+            color: #92400e;
+            margin-bottom: 12px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .warning-box ul {
+            margin-left: 20px;
+            color: #78350f;
+        }
+        
+        .warning-box li {
+            margin: 8px 0;
+        }
+        
+        .info-box {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 24px;
+            margin: 24px 0;
+            border-radius: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .info-box {
+                padding: 16px;
+                margin: 16px 0;
+            }
+        }
+        
+        .info-box h4 {
+            color: #1e40af;
+            margin-bottom: 12px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .info-box p {
+            color: #1e3a8a;
+        }
+        
+        .filter-demo {
+            background: #f8fafc;
+            padding: 32px;
+            border-radius: 12px;
+            margin: 24px 0;
+            border: 2px solid #e2e8f0;
+        }
+        
+        @media (max-width: 768px) {
+            .filter-demo {
+                padding: 16px;
+            }
+        }
+        
+        .filter-demo h4 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #1e293b;
+        }
+        
+        .filter-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin: 16px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .filter-row {
+                gap: 8px;
+                margin: 12px 0;
+            }
+        }
+        
+        .filter-item {
+            padding: 10px 18px;
+            background: white;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #334155;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .filter-item {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+        }
+        
+        .footer {
+            background: #1e293b;
+            color: white;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .footer p {
+            font-size: 16px;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 32px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison-table {
+                font-size: 13px;
+                margin: 24px 0;
+            }
+        }
+        
+        .comparison-table th {
+            background: #1e40af;
+            color: white;
+            padding: 18px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison-table th {
+                padding: 12px 8px;
+                font-size: 13px;
+            }
+        }
+        
+        .comparison-table td {
+            padding: 18px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison-table td {
+                padding: 12px 8px;
+                font-size: 12px;
+            }
+        }
+        
+        .comparison-table tr:hover {
+            background: #f8fafc;
+        }
+        
+        .check {
+            color: #10b981;
+            font-weight: 700;
+        }
+        
+        .cross {
+            color: #ef4444;
+            font-weight: 700;
+        }
+        
+        .content-wrapper {
+            display: none;
+        }
+        
+        .content-wrapper.active {
+            display: block;
+        }
+
+        ul {
+            margin-left: 20px;
+            color: #475569;
+        }
+
+        ul li {
+            margin: 12px 0;
+            line-height: 1.8;
+        }
+
+        code {
+            background: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #1e40af;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="language-selector">
+        <button class="lang-btn active" onclick="switchLanguage('vi')">Tiếng Việt</button>
+        <button class="lang-btn" onclick="switchLanguage('en')">English</button>
+        <button class="lang-btn" onclick="switchLanguage('fr')">Français</button>
+    </div>
+
+    <div class="container">
+        <!-- VIETNAMESE CONTENT -->
+        <div class="content-wrapper active" id="content-vi">
+            <div class="header">
+                <h1>HƯỚNG DẪN SỬ DỤNG LỆNH BOX</h1>
+                <p>Quản lý và nâng cấp thẻ bài Dokkan Battle một cách dễ dàng</p>
+            </div>
+            
+            <div class="content">
+                <div class="section">
+                    <h2>Giới Thiệu</h2>
+                    <p>Lệnh <strong>box</strong> là công cụ mạnh mẽ giúp bạn xem và quản lý tất cả các thẻ bài trong tài khoản Dokkan Battle của mình thông qua giao diện web trực quan.</p>
+                    
+                    <div class="command-box">
+                        box
+                    </div>
+                    
+                    <div class="info-box">
+                        <h4>Lưu ý</h4>
+                        <p>Lệnh này chỉ khả dụng cho tài khoản VIP/Premium. Đảm bảo bạn đã đăng nhập và có token hợp lệ trước khi sử dụng.</p>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2>Tính Năng Chính</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>Xem Toàn Bộ Thẻ</h4>
+                            <p>Hiển thị tất cả thẻ bài trong box dạng grid 5 cột, dễ dàng tìm kiếm và lọc</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Awaken Hàng Loạt</h4>
+                            <p>Chọn nhiều thẻ cùng lúc và awaken tự động theo batch</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Filter Thông Minh</h4>
+                            <p>Lọc theo Type, Rarity, Class, tìm kiếm theo tên nhân vật</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Hiển Thị Chi Tiết</h4>
+                            <p>Xem HP%, Level, SA của từng thẻ ngay trên giao diện</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Awaken V2</h4>
+                            <p>Nâng cấp toàn diện: Train + SA + Awaken + EZA</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Tùy Chỉnh Linh Hoạt</h4>
+                            <p>Ẩn thẻ trùng, ẩn thẻ max SA, chỉ hiện thẻ có thể awaken</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2>Hướng Dẫn Sử Dụng</h2>
+                    
+                    <h3>Bước 1: Mở Card Box Viewer</h3>
+                    <ol class="step-list">
+                        <li>
+                            <strong>Nhập lệnh "box"</strong><br>
+                            Gõ lệnh <code>box</code> trong terminal/console của bot
+                        </li>
+                        <li>
+                            <strong>Chờ tải dữ liệu</strong><br>
+                            Bot sẽ tải thông tin tất cả thẻ bài từ server (có thể mất vài giây)
+                        </li>
+                        <li>
+                            <strong>Trình duyệt tự động mở</strong><br>
+                            Giao diện Card Box Viewer sẽ tự động mở trong trình duyệt mặc định
+                        </li>
+                    </ol>
+                    
+                    <h3>Bước 2: Sử Dụng Filters</h3>
+                    <div class="filter-demo">
+                        <h4>Các bộ lọc có sẵn:</h4>
+                        <div class="filter-row">
+                            <div class="filter-item"><strong>Sort:</strong> HiPo ↓, Cost ↑/↓, SA ↓, LVL ↓, ID ↓, Rarity</div>
+                            <div class="filter-item"><strong>Type:</strong> STR, AGL, PHY, TEQ, INT</div>
+                            <div class="filter-item"><strong>Class:</strong> Super, Extreme</div>
+                            <div class="filter-item"><strong>Rarity:</strong> All, LR, UR, SSR</div>
+                        </div>
+                        <div class="filter-row">
+                            <div class="filter-item">Awaken Only - Chỉ hiện thẻ có thể awaken</div>
+                            <div class="filter-item">Unique Only - Ẩn thẻ trùng lặp</div>
+                            <div class="filter-item">Hide Maxed SA - Ẩn thẻ đã max SA</div>
+                        </div>
+                        <div class="filter-row">
+                            <div class="filter-item"><strong>Display:</strong> HP% / SA / LVL - Chọn thông tin hiển thị trên thẻ</div>
+                        </div>
+                    </div>
+                    
+                    <h3>Bước 3: Chọn Thẻ Để Awaken</h3>
+                    <ol class="step-list">
+                        <li>
+                            <strong>Click vào thẻ</strong><br>
+                            Click vào các thẻ bạn muốn awaken, thẻ được chọn sẽ có viền xanh lá
+                        </li>
+                        <li>
+                            <strong>Thẻ được thêm vào Queue</strong><br>
+                            Các thẻ đã chọn sẽ hiển thị trong "AWAKEN QUEUE" ở trên cùng
+                        </li>
+                        <li>
+                            <strong>Xóa thẻ khỏi Queue</strong><br>
+                            Click nút "X" trên thumbnail trong queue để xóa thẻ không muốn awaken
+                        </li>
+                    </ol>
+                    
+                    <h3>Bước 4: Chọn Chế Độ Awaken</h3>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <div class="button-demo btn-awaken">AWAKEN</div>
+                        <div class="button-demo btn-awaken2">AWAKEN V2</div>
+                        <div class="button-demo btn-clear">CLEAR</div>
+                    </div>
+                    
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Tính Năng</th>
+                                <th>AWAKEN</th>
+                                <th>AWAKEN V2</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Awaken lên rarity cao hơn</strong></td>
+                                <td class="check">✓</td>
+                                <td class="cross">✗</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Train Level tối đa</strong></td>
+                                <td class="cross">✗</td>
+                                <td class="check">✓</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tăng SA tối đa</strong></td>
+                                <td class="cross">✗</td>
+                                <td class="check">✓</td>
+                            </tr>
+                            <tr>
+                                <td><strong>EZA (nếu có)</strong></td>
+                                <td class="cross">✗</td>
+                                <td class="check">✓</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tốc độ xử lý</strong></td>
+                                <td>Nhanh (5 thẻ/refresh)</td>
+                                <td>Chậm hơn (3 thẻ/refresh)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Khuyến nghị</strong></td>
+                                <td>Awaken nhanh nhiều thẻ</td>
+                                <td>Nâng cấp toàn diện</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h3>Bước 5: Theo Dõi Tiến Trình</h3>
+                    <ol class="step-list">
+                        <li>
+                            <strong>Bot xử lý tự động</strong><br>
+                            Bot sẽ xử lý từng thẻ theo thứ tự trong queue
+                        </li>
+                        <li>
+                            <strong>Hiển thị tiến trình</strong><br>
+                            Terminal sẽ hiển thị: [1/10] Processing card ID: 123456...
+                        </li>
+                        <li>
+                            <strong>Refresh token tự động</strong><br>
+                            Bot tự động refresh token mỗi 3-5 thẻ để tránh expire
+                        </li>
+                        <li>
+                            <strong>Báo cáo kết quả</strong><br>
+                            Sau khi hoàn thành, bot sẽ hiển thị số thẻ thành công/thất bại
+                        </li>
+                    </ol>
+                </div>
+                
+                <div class="section">
+                    <h2>Lưu Ý Quan Trọng</h2>
+                    
+                    <div class="warning-box">
+                        <h4>Token & Bảo Mật</h4>
+                        <ul>
+                            <li>Đảm bảo token còn hạn trước khi sử dụng</li>
+                            <li>Bot tự động refresh token, nhưng nếu token hết hạn hoàn toàn, cần đăng nhập lại</li>
+                            <li>Không chia sẻ token với người khác</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="warning-box">
+                        <h4>Thời Gian Xử Lý</h4>
+                        <ul>
+                            <li><strong>AWAKEN:</strong> ~5-10 giây/thẻ</li>
+                            <li><strong>AWAKEN V2:</strong> ~15-30 giây/thẻ (do phải train + SA + EZA)</li>
+                            <li>Không tắt bot trong khi đang xử lý</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="warning-box">
+                        <h4>Giới Hạn</h4>
+                        <ul>
+                            <li>Không nên awaken quá 50 thẻ cùng lúc để tránh timeout</li>
+                            <li>Nếu có lỗi, bot sẽ bỏ qua thẻ đó và tiếp tục với thẻ tiếp theo</li>
+                            <li>Kiểm tra kết nối internet ổn định</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2>Tips & Tricks</h2>
+                    
+                    <h3>1. Tối Ưu Hóa Awaken</h3>
+                    <ul>
+                        <li>Sử dụng filter "Awaken Only" để chỉ hiện thẻ có thể awaken</li>
+                        <li>Sort theo "Cost ↓" để awaken thẻ có cost cao trước (thường là thẻ tốt)</li>
+                        <li>Dùng "Hide Maxed SA" để ẩn thẻ đã hoàn thiện</li>
+                        <li>Search theo tên để tìm nhanh thẻ cụ thể</li>
+                    </ul>
+                    
+                    <h3>2. Khi Nào Dùng AWAKEN vs AWAKEN V2?</h3>
+                    <ul>
+                        <li><strong>AWAKEN:</strong> Khi chỉ cần awaken nhanh nhiều thẻ SSR→UR hoặc UR→LR</li>
+                        <li><strong>AWAKEN V2:</strong> Khi muốn thẻ hoàn thiện 100% (max level, max SA, EZA)</li>
+                        <li><strong>Tip:</strong> Awaken thẻ LR quan trọng bằng V2, thẻ SSR/UR thường dùng AWAKEN thôi</li>
+                    </ul>
+                    
+                    <h3>3. Xử Lý Lỗi</h3>
+                    <ul>
+                        <li>Nếu bot báo lỗi "Token expired" → Dùng lệnh <code>login</code> để đăng nhập lại</li>
+                        <li>Nếu thẻ không awaken được → Kiểm tra có đủ medal/zeni không</li>
+                        <li>Nếu trình duyệt không mở → Kiểm tra port 54299 có bị chiếm không</li>
+                    </ul>
+                </div>
+                
+                <div class="section">
+                    <h2>Câu Hỏi Thường Gặp</h2>
+                    
+                    <div class="info-box">
+                        <h4>Q: Tôi có thể awaken bao nhiêu thẻ cùng lúc?</h4>
+                        <p>A: Không giới hạn, nhưng khuyến nghị không quá 50 thẻ/lần để tránh timeout và dễ quản lý.</p>
+                    </div>
+                    
+                    <div class="info-box">
+                        <h4>Q: AWAKEN V2 có tốn nhiều item không?</h4>
+                        <p>A: Có, V2 sẽ dùng training items, SA items (Elder Kai, Funky Kai...), medal EZA và Zeni. Đảm bảo có đủ trước khi dùng.</p>
+                    </div>
+                    
+                    <div class="warning-box">
+                        <h4>⚠️ Yêu Cầu Quan Trọng Cho AWAKEN V2</h4>
+                        <ul>
+                            <li><strong>Training Items:</strong> Cần đủ items để train (Turtle Shell, Gravity Chamber, v.v.)</li>
+                            <li><strong>Training Locations:</strong> Phải mở khóa đủ locations để train (Korin Tower, Kami's Lookout, v.v.)</li>
+                            <li><strong>Zeni:</strong> Cần đủ Zeni cho training, awakening và EZA</li>
+                            <li><strong>SA Items:</strong> Elder Kai, Funky Kai, Grand Kai hoặc thẻ trùng để tăng SA</li>
+                            <li><strong>Awakening Medals:</strong> Đủ medal để awaken thẻ</li>
+                            <li><strong>EZA Medals:</strong> Nếu thẻ có EZA, cần đủ medal EZA tương ứng</li>
+                        </ul>
+                        <p style="margin-top: 12px; font-weight: 600; color: #92400e;">Nếu thiếu bất kỳ yêu cầu nào, AWAKEN V2 có thể thất bại hoặc không hoàn thành đầy đủ!</p>
+                    </div>
+                    
+                    <div class="info-box">
+                        <h4>Q: Tôi có thể hủy giữa chừng không?</h4>
+                        <p>A: Có, nhấn Ctrl+C trong terminal để dừng. Các thẻ đã awaken sẽ được giữ nguyên.</p>
+                    </div>
+                    
+                    <div class="info-box">
+                        <h4>Q: Tại sao một số thẻ bị làm mờ (opacity 0.5)?</h4>
+                        <p>A: Đó là thẻ đã max SA, bot đánh dấu để bạn biết không cần tăng SA nữa. Bạn có thể dùng checkbox "Hide Maxed SA" để ẩn hoàn toàn.</p>
+                    </div>
+                    
+                    <div class="info-box">
+                        <h4>Q: Lệnh "listcard" khác gì "box"?</h4>
+                        <p>A: "listcard" chỉ xem thôi, không có nút awaken. "box" có đầy đủ tính năng awaken hàng loạt.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p>Dokkan Bot - Card Box Viewer Guide</p>
+                <p style="margin-top: 10px; opacity: 0.8;">Phiên bản 2.0 - Cập nhật 2026</p>
+            </div>
+        </div>
+
+        <!-- ENGLISH CONTENT -->
+        <div class="content-wrapper" id="content-en">
+            <div class="header">
+                <h1>BOX COMMAND GUIDE</h1>
+                <p>Manage and upgrade your Dokkan Battle cards with ease</p>
+            </div>
+            
+            <div class="content">
+                <div class="section">
+                    <h2>Introduction</h2>
+                    <p>The <strong>box</strong> command is a powerful tool that helps you view and manage all cards in your Dokkan Battle account through an intuitive web interface.</p>
+                    
+                    <div class="command-box">
+                        box
+                    </div>
+                    
+                    <div class="info-box">
+                        <h4>Note</h4>
+                        <p>This command is only available for VIP/Premium accounts. Make sure you are logged in and have a valid token before using.</p>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2>Main Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>View All Cards</h4>
+                            <p>Display all cards in your box in a 5-column grid, easy to search and filter</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Batch Awaken</h4>
+                            <p>Select multiple cards at once and awaken automatically in batches</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Smart Filter</h4>
+                            <p>Filter by Type, Rarity, Class, search by character name</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Detailed Display</h4>
+                            <p>View HP%, Level, SA of each card directly on the interface</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Awaken V2</h4>
+                            <p>Comprehensive upgrade: Train + SA + Awaken + EZA</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Flexible Customization</h4>
+                            <p>Hide duplicate cards, hide max SA cards, show only awakenable cards</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2>Usage Guide</h2>
+                    
+                    <h3>Step 1: Open Card Box Viewer</h3>
+                    <ol class="step-list">
+                        <li>
+                            <strong>Enter "box" command</strong><br>
+                            Type <code>box</code> command in the bot's terminal/console
+                        </li>
+                        <li>
+                            <strong>Wait for data loading</strong><br>
+                            Bot will load information of all cards from server (may take a few seconds)
+                        </li>
+                        <li>
+                            <strong>Browser opens automatically</strong><br>
+                            Card Box Viewer interface will automatically open in your default browser
+                        </li>
+                    </ol>
+                    
+                    <h3>Step 2: Using Filters</h3>
+                    <div class="filter-demo">
+                        <h4>Available filters:</h4>
+                        <div class="filter-row">
+                            <div class="filter-item"><strong>Sort:</strong> HiPo ↓, Cost ↑/↓, SA ↓, LVL ↓, ID ↓, Rarity</div>
+                            <div class="filter-item"><strong>Type:</strong> STR, AGL, PHY, TEQ, INT</div>
+                            <div class="filter-item"><strong>Class:</strong> Super, Extreme</div>
+                            <div class="filter-item"><strong>Rarity:</strong> All, LR, UR, SSR</div>
+                        </div>
+                        <div class="filter-row">
+                            <div class="filter-item">Awaken Only - Show only awakenable cards</div>
+                            <div class="filter-item">Unique Only - Hide duplicate cards</div>
+                            <div class="filter-item">Hide Maxed SA - Hide cards with max SA</div>
+                        </div>
+                        <div class="filter-row">
+                            <div class="filter-item"><strong>Display:</strong> HP% / SA / LVL - Choose info displayed on cards</div>
+                        </div>
+                    </div>
+                    
+                    <h3>Step 3: Select Cards to Awaken</h3>
+                    <ol class="step-list">
+                        <li>
+                            <strong>Click on cards</strong><br>
+                            Click on cards you want to awaken, selected cards will have a green border
+                        </li>
+                        <li>
+                            <strong>Cards added to Queue</strong><br>
+                            Selected cards will be displayed in "AWAKEN QUEUE" at the top
+                        </li>
+                        <li>
+                            <strong>Remove cards from Queue</strong><br>
+                            Click the "X" button on thumbnail in queue to remove unwanted cards
+                        </li>
+                    </ol>
+                    
+                    <h3>Step 4: Choose Awaken Mode</h3>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <div class="button-demo btn-awaken">AWAKEN</div>
+                        <div class="button-demo btn-awaken2">AWAKEN V2</div>
+                        <div class="button-demo btn-clear">CLEAR</div>
+                    </div>
+                    
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>AWAKEN</th>
+                                <th>AWAKEN V2</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Awaken to higher rarity</strong></td>
+                                <td class="check">✓</td>
+                                <td class="cross">✗</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Train to max Level</strong></td>
+                                <td class="cross">✗</td>
+                                <td class="check">✓</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Increase SA to max</strong></td>
+                                <td class="cross">✗</td>
+                                <td class="check">✓</td>
+                            </tr>
+                            <tr>
+                                <td><strong>EZA (if available)</strong></td>
+                                <td class="cross">✗</td>
+                                <td class="check">✓</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Processing speed</strong></td>
+                                <td>Fast (5 cards/refresh)</td>
+                                <td>Slower (3 cards/refresh)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Recommended for</strong></td>
+                                <td>Quick batch awakening</td>
+                                <td>Complete upgrade</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h3>Step 5: Monitor Progress</h3>
+                    <ol class="step-list">
+                        <li>
+                            <strong>Bot processes automatically</strong><br>
+                            Bot will process each card in queue order
+                        </li>
+                        <li>
+                            <strong>Display progress</strong><br>
+                            Terminal will show: [1/10] Processing card ID: 123456...
+                        </li>
+                        <li>
+                            <strong>Auto token refresh</strong><br>
+                            Bot automatically refreshes token every 3-5 cards to avoid expiration
+                        </li>
+                        <li>
+                            <strong>Result report</strong><br>
+                            After completion, bot will display number of successful/failed cards
+                        </li>
+                    </ol>
+                </div>
+                
+                <div class="section">
+                    <h2>Important Notes</h2>
+                    
+                    <div class="warning-box">
+                        <h4>Token & Security</h4>
+                        <ul>
+                            <li>Ensure token is valid before using</li>
+                            <li>Bot auto-refreshes token, but if token completely expires, need to login again</li>
+                            <li>Do not share token with others</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="warning-box">
+                        <h4>Processing Time</h4>
+                        <ul>
+                            <li><strong>AWAKEN:</strong> ~5-10 seconds/card</li>
+                            <li><strong>AWAKEN V2:</strong> ~15-30 seconds/card (due to train + SA + EZA)</li>
+                            <li>Do not close bot while processing</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="warning-box">
+                        <h4>Limitations</h4>
+                        <ul>
+                            <li>Should not awaken more than 50 cards at once to avoid timeout</li>
+                            <li>If error occurs, bot will skip that card and continue with next one</li>
+                            <li>Check stable internet connection</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2>Tips & Tricks</h2>
+                    
+                    <h3>1. Optimize Awakening</h3>
+                    <ul>
+                        <li>Use "Awaken Only" filter to show only awakenable cards</li>
+                        <li>Sort by "Cost ↓" to awaken high-cost cards first (usually best cards)</li>
+                        <li>Use "Hide Maxed SA" to hide completed cards</li>
+                        <li>Search by name to quickly find specific cards</li>
+                    </ul>
+                    
+                    <h3>2. When to Use AWAKEN vs AWAKEN V2?</h3>
+                    <ul>
+                        <li><strong>AWAKEN:</strong> When you just need to quickly awaken many cards SSR→UR or UR→LR</li>
+                        <li><strong>AWAKEN V2:</strong> When you want cards 100% complete (max level, max SA, EZA)</li>
+                        <li><strong>Tip:</strong> Use V2 for important LR cards, regular AWAKEN for SSR/UR cards</li>
+                    </ul>
+                    
+                    <h3>3. Error Handling</h3>
+                    <ul>
+                        <li>If bot shows "Token expired" error → Use <code>login</code> command to login again</li>
+                        <li>If card cannot be awakened → Check if you have enough medals/zeni</li>
+                        <li>If browser does not open → Check if port 54299 is occupied</li>
+                    </ul>
+                </div>
+                
+                <div class="section">
+                    <h2>Frequently Asked Questions</h2>
+                    
+                    <div class="info-box">
+                        <h4>Q: How many cards can I awaken at once?</h4>
+                        <p>A: No limit, but recommended not to exceed 50 cards/time to avoid timeout and easier management.</p>
+                    </div>
+                    
+                    <div class="info-box">
+                        <h4>Q: Does AWAKEN V2 consume many items?</h4>
+                        <p>A: Yes, V2 will use training items, SA items (Elder Kai, Funky Kai...), EZA medals and Zeni. Make sure you have enough before using.</p>
+                    </div>
+                    
+                    <div class="warning-box">
+                        <h4>⚠️ Important Requirements for AWAKEN V2</h4>
+                        <ul>
+                            <li><strong>Training Items:</strong> Need sufficient items for training (Turtle Shell, Gravity Chamber, etc.)</li>
+                            <li><strong>Training Locations:</strong> Must unlock enough training locations (Korin Tower, Kami's Lookout, etc.)</li>
+                            <li><strong>Zeni:</strong> Need sufficient Zeni for training, awakening and EZA</li>
+                            <li><strong>SA Items:</strong> Elder Kai, Funky Kai, Grand Kai or duplicate cards to increase SA</li>
+                            <li><strong>Awakening Medals:</strong> Sufficient medals to awaken cards</li>
+                            <li><strong>EZA Medals:</strong> If card has EZA, need corresponding EZA medals</li>
+                        </ul>
+                        <p style="margin-top: 12px; font-weight: 600; color: #92400e;">If any requirement is missing, AWAKEN V2 may fail or not complete fully!</p>
+                    </div>
+                    
+                    <div class="info-box">
+                        <h4>Q: Can I cancel midway?</h4>
+                        <p>A: Yes, press Ctrl+C in terminal to stop. Already awakened cards will be kept.</p>
+                    </div>
+                    
+                    <div class="info-box">
+                        <h4>Q: Why are some cards dimmed (opacity 0.5)?</h4>
+                        <p>A: Those are cards with max SA, bot marks them so you know SA upgrade is not needed. You can use "Hide Maxed SA" checkbox to completely hide them.</p>
+                    </div>
+                    
+                    <div class="info-box">
+                        <h4>Q: What's the difference between "listcard" and "box"?</h4>
+                        <p>A: "listcard" is view-only, no awaken button. "box" has full batch awakening features.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p>Dokkan Bot - Card Box Viewer Guide</p>
+                <p style="margin-top: 10px; opacity: 0.8;">Version 2.0 - Updated 2026</p>
+            </div>
+        </div>
+
+        <!-- FRENCH CONTENT -->
+        <div class="content-wrapper" id="content-fr">
+            <div class="header">
+                <h1>GUIDE DE LA COMMANDE BOX</h1>
+                <p>Gérez et améliorez vos cartes Dokkan Battle facilement</p>
+            </div>
+            
+            <div class="content">
+                <div class="section">
+                    <h2>Introduction</h2>
+                    <p>La commande <strong>box</strong> est un outil puissant qui vous aide à visualiser et gérer toutes les cartes de votre compte Dokkan Battle via une interface web intuitive.</p>
+                    
+                    <div class="command-box">
+                        box
+                    </div>
+                    
+                    <div class="info-box">
+                        <h4>Remarque</h4>
+                        <p>Cette commande n'est disponible que pour les comptes VIP/Premium. Assurez-vous d'être connecté et d'avoir un token valide avant utilisation.</p>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2>Fonctionnalités Principales</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>Voir Toutes les Cartes</h4>
+                            <p>Affiche toutes les cartes de votre box dans une grille de 5 colonnes, facile à rechercher et filtrer</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Éveil par Lots</h4>
+                            <p>Sélectionnez plusieurs cartes à la fois et éveillez automatiquement par lots</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Filtre Intelligent</h4>
+                            <p>Filtrez par Type, Rareté, Classe, recherchez par nom de personnage</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Affichage Détaillé</h4>
+                            <p>Voir HP%, Niveau, AS de chaque carte directement sur l'interface</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Éveil V2</h4>
+                            <p>Amélioration complète: Entraînement + AS + Éveil + EZA</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Personnalisation Flexible</h4>
+                            <p>Masquer les cartes en double, masquer les cartes AS max, afficher uniquement les cartes éveillables</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2>Guide d'Utilisation</h2>
+                    
+                    <h3>Étape 1: Ouvrir le Visualiseur de Box</h3>
+                    <ol class="step-list">
+                        <li>
+                            <strong>Entrer la commande "box"</strong><br>
+                            Tapez la commande <code>box</code> dans le terminal/console du bot
+                        </li>
+                        <li>
+                            <strong>Attendre le chargement des données</strong><br>
+                            Le bot chargera les informations de toutes les cartes depuis le serveur (peut prendre quelques secondes)
+                        </li>
+                        <li>
+                            <strong>Le navigateur s'ouvre automatiquement</strong><br>
+                            L'interface du Visualiseur de Box s'ouvrira automatiquement dans votre navigateur par défaut
+                        </li>
+                    </ol>
+                    
+                    <h3>Étape 2: Utilisation des Filtres</h3>
+                    <div class="filter-demo">
+                        <h4>Filtres disponibles:</h4>
+                        <div class="filter-row">
+                            <div class="filter-item"><strong>Tri:</strong> HiPo ↓, Coût ↑/↓, AS ↓, NIV ↓, ID ↓, Rareté</div>
+                            <div class="filter-item"><strong>Type:</strong> FOR, AGI, TEC, INT, END</div>
+                            <div class="filter-item"><strong>Classe:</strong> Super, Extrême</div>
+                            <div class="filter-item"><strong>Rareté:</strong> Toutes, LR, UR, SSR</div>
+                        </div>
+                        <div class="filter-row">
+                            <div class="filter-item">Éveil Uniquement - Afficher uniquement les cartes éveillables</div>
+                            <div class="filter-item">Uniques Uniquement - Masquer les cartes en double</div>
+                            <div class="filter-item">Masquer AS Max - Masquer les cartes avec AS max</div>
+                        </div>
+                        <div class="filter-row">
+                            <div class="filter-item"><strong>Affichage:</strong> HP% / AS / NIV - Choisir les infos affichées sur les cartes</div>
+                        </div>
+                    </div>
+                    
+                    <h3>Étape 3: Sélectionner les Cartes à Éveiller</h3>
+                    <ol class="step-list">
+                        <li>
+                            <strong>Cliquer sur les cartes</strong><br>
+                            Cliquez sur les cartes que vous souhaitez éveiller, les cartes sélectionnées auront une bordure verte
+                        </li>
+                        <li>
+                            <strong>Cartes ajoutées à la File</strong><br>
+                            Les cartes sélectionnées seront affichées dans "FILE D'ÉVEIL" en haut
+                        </li>
+                        <li>
+                            <strong>Retirer des cartes de la File</strong><br>
+                            Cliquez sur le bouton "X" sur la miniature dans la file pour retirer les cartes non désirées
+                        </li>
+                    </ol>
+                    
+                    <h3>Étape 4: Choisir le Mode d'Éveil</h3>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <div class="button-demo btn-awaken">ÉVEIL</div>
+                        <div class="button-demo btn-awaken2">ÉVEIL V2</div>
+                        <div class="button-demo btn-clear">EFFACER</div>
+                    </div>
+                    
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Fonctionnalité</th>
+                                <th>ÉVEIL</th>
+                                <th>ÉVEIL V2</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Éveiller vers rareté supérieure</strong></td>
+                                <td class="check">✓</td>
+                                <td class="cross">✗</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Entraîner au niveau max</strong></td>
+                                <td class="cross">✗</td>
+                                <td class="check">✓</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Augmenter AS au max</strong></td>
+                                <td class="cross">✗</td>
+                                <td class="check">✓</td>
+                            </tr>
+                            <tr>
+                                <td><strong>EZA (si disponible)</strong></td>
+                                <td class="cross">✗</td>
+                                <td class="check">✓</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Vitesse de traitement</strong></td>
+                                <td>Rapide (5 cartes/refresh)</td>
+                                <td>Plus lent (3 cartes/refresh)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Recommandé pour</strong></td>
+                                <td>Éveil rapide par lots</td>
+                                <td>Amélioration complète</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h3>Étape 5: Suivre la Progression</h3>
+                    <ol class="step-list">
+                        <li>
+                            <strong>Le bot traite automatiquement</strong><br>
+                            Le bot traitera chaque carte dans l'ordre de la file
+                        </li>
+                        <li>
+                            <strong>Afficher la progression</strong><br>
+                            Le terminal affichera: [1/10] Traitement carte ID: 123456...
+                        </li>
+                        <li>
+                            <strong>Actualisation auto du token</strong><br>
+                            Le bot actualise automatiquement le token toutes les 3-5 cartes pour éviter l'expiration
+                        </li>
+                        <li>
+                            <strong>Rapport de résultats</strong><br>
+                            Après achèvement, le bot affichera le nombre de cartes réussies/échouées
+                        </li>
+                    </ol>
+                </div>
+                
+                <div class="section">
+                    <h2>Notes Importantes</h2>
+                    
+                    <div class="warning-box">
+                        <h4>Token & Sécurité</h4>
+                        <ul>
+                            <li>Assurez-vous que le token est valide avant utilisation</li>
+                            <li>Le bot actualise automatiquement le token, mais si le token expire complètement, reconnexion nécessaire</li>
+                            <li>Ne partagez pas votre token avec d'autres</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="warning-box">
+                        <h4>Temps de Traitement</h4>
+                        <ul>
+                            <li><strong>ÉVEIL:</strong> ~5-10 secondes/carte</li>
+                            <li><strong>ÉVEIL V2:</strong> ~15-30 secondes/carte (dû à entraînement + AS + EZA)</li>
+                            <li>Ne fermez pas le bot pendant le traitement</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="warning-box">
+                        <h4>Limitations</h4>
+                        <ul>
+                            <li>Ne devrait pas éveiller plus de 50 cartes à la fois pour éviter le timeout</li>
+                            <li>Si une erreur se produit, le bot ignorera cette carte et continuera avec la suivante</li>
+                            <li>Vérifier la connexion internet stable</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2>Astuces & Conseils</h2>
+                    
+                    <h3>1. Optimiser l'Éveil</h3>
+                    <ul>
+                        <li>Utiliser le filtre "Éveil Uniquement" pour afficher uniquement les cartes éveillables</li>
+                        <li>Trier par "Coût ↓" pour éveiller les cartes de coût élevé en premier (généralement meilleures cartes)</li>
+                        <li>Utiliser "Masquer AS Max" pour masquer les cartes complétées</li>
+                        <li>Rechercher par nom pour trouver rapidement des cartes spécifiques</li>
+                    </ul>
+                    
+                    <h3>2. Quand Utiliser ÉVEIL vs ÉVEIL V2?</h3>
+                    <ul>
+                        <li><strong>ÉVEIL:</strong> Quand vous devez juste éveiller rapidement plusieurs cartes SSR→UR ou UR→LR</li>
+                        <li><strong>ÉVEIL V2:</strong> Quand vous voulez des cartes 100% complètes (niveau max, AS max, EZA)</li>
+                        <li><strong>Astuce:</strong> Utiliser V2 pour les cartes LR importantes, ÉVEIL régulier pour cartes SSR/UR</li>
+                    </ul>
+                    
+                    <h3>3. Gestion des Erreurs</h3>
+                    <ul>
+                        <li>Si le bot affiche "Token expiré" → Utiliser la commande <code>login</code> pour se reconnecter</li>
+                        <li>Si la carte ne peut pas être éveillée → Vérifier si vous avez assez de médailles/zeni</li>
+                        <li>Si le navigateur ne s'ouvre pas → Vérifier si le port 54299 est occupé</li>
+                    </ul>
+                </div>
+                
+                <div class="section">
+                    <h2>Questions Fréquentes</h2>
+                    
+                    <div class="info-box">
+                        <h4>Q: Combien de cartes puis-je éveiller en une fois?</h4>
+                        <p>R: Pas de limite, mais recommandé de ne pas dépasser 50 cartes/fois pour éviter le timeout et faciliter la gestion.</p>
+                    </div>
+                    
+                    <div class="info-box">
+                        <h4>Q: ÉVEIL V2 consomme-t-il beaucoup d'objets?</h4>
+                        <p>R: Oui, V2 utilisera des objets d'entraînement, objets AS (Elder Kai, Funky Kai...), médailles EZA et Zeni. Assurez-vous d'en avoir assez avant utilisation.</p>
+                    </div>
+                    
+                    <div class="warning-box">
+                        <h4>⚠️ Exigences Importantes pour ÉVEIL V2</h4>
+                        <ul>
+                            <li><strong>Objets d'Entraînement:</strong> Besoin d'objets suffisants pour l'entraînement (Carapace de Tortue, Chambre Gravitationnelle, etc.)</li>
+                            <li><strong>Lieux d'Entraînement:</strong> Doit débloquer suffisamment de lieux d'entraînement (Tour de Korin, Palais de Dieu, etc.)</li>
+                            <li><strong>Zeni:</strong> Besoin de Zeni suffisant pour l'entraînement, l'éveil et l'EZA</li>
+                            <li><strong>Objets AS:</strong> Elder Kai, Funky Kai, Grand Kai ou cartes en double pour augmenter AS</li>
+                            <li><strong>Médailles d'Éveil:</strong> Médailles suffisantes pour éveiller les cartes</li>
+                            <li><strong>Médailles EZA:</strong> Si la carte a EZA, besoin des médailles EZA correspondantes</li>
+                        </ul>
+                        <p style="margin-top: 12px; font-weight: 600; color: #92400e;">Si une exigence manque, ÉVEIL V2 peut échouer ou ne pas se terminer complètement!</p>
+                    </div>
+                    
+                    <div class="info-box">
+                        <h4>Q: Puis-je annuler en cours de route?</h4>
+                        <p>R: Oui, appuyez sur Ctrl+C dans le terminal pour arrêter. Les cartes déjà éveillées seront conservées.</p>
+                    </div>
+                    
+                    <div class="info-box">
+                        <h4>Q: Pourquoi certaines cartes sont-elles estompées (opacity 0.5)?</h4>
+                        <p>R: Ce sont des cartes avec AS max, le bot les marque pour que vous sachiez que l'amélioration AS n'est pas nécessaire. Vous pouvez utiliser la case "Masquer AS Max" pour les masquer complètement.</p>
+                    </div>
+                    
+                    <div class="info-box">
+                        <h4>Q: Quelle est la différence entre "listcard" et "box"?</h4>
+                        <p>R: "listcard" est en lecture seule, pas de bouton d'éveil. "box" a toutes les fonctionnalités d'éveil par lots.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p>Dokkan Bot - Guide du Visualiseur de Box</p>
+                <p style="margin-top: 10px; opacity: 0.8;">Version 2.0 - Mis à jour 2026</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchLanguage(lang) {
+            // Hide all content
+            document.querySelectorAll('.content-wrapper').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Remove active from all buttons
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected language content
+            document.getElementById('content-' + lang).classList.add('active');
+            
+            // Add active to selected button
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

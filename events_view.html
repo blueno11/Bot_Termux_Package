@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Challenge | Dokkan Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep: #050a12;
+  --bg-card: #0c1526;
+  --bg-panel: #0f1d35;
+  --bg-elevated: #111f38;
+  --border-dim: #1e3a5f;
+  --border-bright: #2a5298;
+  --accent-gold: #f5c518;
+  --accent-blue: #3d8ef0;
+  --accent-cyan: #00d4ff;
+  --green: #00e676;
+  --red: #ff4444;
+  --yellow: #ffb300;
+  --gray: #4b5563;
+  --text-primary: #e8f4fd;
+  --text-secondary: #7ba7cc;
+  --text-dim: #3d6080;
+  --diff-h: #28a745;
+  --diff-z: #e6a817;
+  --diff-s: #dc3545;
+  --diff-s2: #6f42c1;
+  --diff-s3: #fd7e14;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  min-height: 100%;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Rajdhani', sans-serif;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(61,142,240,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(61,142,240,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── HEADER ─── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(5,10,18,0.97);
+  border-bottom: 1px solid var(--border-dim);
+  padding: 10px 14px;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.header-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: var(--accent-gold);
+  text-shadow: 0 0 12px rgba(245,197,24,0.3);
+}
+
+.stats-row {
+  display: flex;
+  gap: 8px;
+}
+
+.stat-chip {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  background: rgba(61,142,240,0.08);
+  border: 1px solid var(--border-dim);
+  color: var(--text-secondary);
+}
+
+.stat-chip span { color: var(--accent-gold); font-weight: 700; }
+
+/* ─── FARM QUEUE PANEL ─── */
+.farm-panel {
+  position: relative;
+  z-index: 1;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-dim);
+  padding: 10px 14px;
+}
+
+.farm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.farm-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--accent-blue);
+}
+
+.farm-count {
+  font-family: 'Orbitron', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-gold);
+  background: rgba(245,197,24,0.1);
+  border: 1px solid rgba(245,197,24,0.2);
+  padding: 2px 8px;
+  border-radius: 3px;
+  min-width: 28px;
+  text-align: center;
+}
+
+.queue {
+  min-height: 44px;
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  align-items: center;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border-dim);
+  border-radius: 5px;
+  padding: 6px 8px;
+  margin-bottom: 8px;
+}
+
+.queue-empty {
+  color: var(--text-dim);
+  font-size: 11px;
+  font-style: italic;
+}
+
+.queue-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-dim);
+  padding: 3px 6px 3px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+}
+
+.queue-item .q-name {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+}
+
+.queue-item .q-diff {
+  background: var(--accent-blue);
+  color: #fff;
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-size: 9px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.queue-item .q-key {
+  background: var(--yellow);
+  color: #000;
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.q-rm {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  font-size: 8px;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.farm-btns {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.run-wrap {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.run-label {
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.run-input {
+  width: 52px;
+  height: 34px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-dim);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-family: 'Orbitron', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+}
+.run-input:focus { border-color: var(--accent-blue); }
+
+.farm-btn {
+  flex: 1;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 5px;
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.farm-btn.go { background: linear-gradient(135deg, #1a5c2a, var(--green)); color: #000; }
+.farm-btn.clr { background: linear-gradient(135deg, #5c1a1a, var(--red)); color: #fff; }
+.farm-btn.off { opacity: 0.3; pointer-events: none; }
+
+/* ─── FILTERS ─── */
+.filters-section {
+  position: relative;
+  z-index: 1;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border-dim);
+  background: var(--bg-deep);
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 6px;
+}
+
+.filter-row:last-child { margin-bottom: 0; }
+
+.f-btn {
+  padding: 4px 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-transform: uppercase;
+}
+.f-btn:hover { border-color: var(--border-bright); color: var(--text-primary); }
+.f-btn.active { background: var(--bg-elevated); border-color: var(--accent-blue); color: var(--accent-cyan); }
+.f-btn.active-green { background: rgba(0,230,118,0.12); border-color: var(--green); color: var(--green); }
+.f-btn.active-gray { background: rgba(107,114,128,0.2); border-color: var(--gray); color: #9ca3af; }
+
+.search-row {
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border-dim);
+  background: var(--bg-deep);
+  position: relative;
+  z-index: 1;
+}
+
+.search-input {
+  width: 100%;
+  padding: 7px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  border-radius: 5px;
+  color: var(--text-primary);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.search-input::placeholder { color: var(--text-dim); }
+.search-input:focus { border-color: var(--accent-blue); }
+
+/* ─── GRID ─── */
+.grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 10px 14px;
+}
+
+@media(max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+@media(min-width: 701px) and (max-width: 1100px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* ─── EVENT CARD ─── */
+.event-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.event-item:hover { border-color: var(--border-bright); transform: translateY(-1px); }
+.event-item.expanded { border-color: var(--accent-blue); box-shadow: 0 0 10px rgba(61,142,240,0.2); }
+
+.event-banner-wrap { position: relative; }
+
+.event-banner {
+  width: 100%;
+  aspect-ratio: 5/1;
+  object-fit: cover;
+  display: block;
+}
+
+.event-placeholder {
+  width: 100%;
+  aspect-ratio: 5/1;
+  background: linear-gradient(135deg, var(--bg-elevated), var(--bg-card));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 8px;
+}
+
+.event-badge {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: 'Orbitron', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.event-badge.active { background: rgba(0,230,118,0.2); color: var(--green); border: 1px solid rgba(0,230,118,0.3); }
+.event-badge.inactive { background: rgba(107,114,128,0.2); color: #9ca3af; border: 1px solid rgba(107,114,128,0.3); }
+
+/* ─── STAGES PANEL ─── */
+.stages-panel { display: none; border-top: 1px solid var(--border-dim); }
+.stages-panel.show { display: block; }
+
+.stage-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background: var(--bg-elevated);
+}
+
+.stage-count { font-size: 10px; color: var(--text-secondary); font-weight: 600; }
+
+.stage-ctrl-btns { display: flex; gap: 4px; }
+
+.ctrl-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  color: var(--text-secondary);
+  padding: 3px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 600;
+  transition: all 0.12s;
+}
+.ctrl-btn:hover { border-color: var(--accent-blue); color: var(--text-primary); }
+
+.stage-list { max-height: 200px; overflow-y: auto; padding: 4px 6px; }
+.stage-list::-webkit-scrollbar { width: 3px; }
+.stage-list::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+
+.stage-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  margin: 2px 0;
+  background: var(--bg-deep);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.stage-item:hover { background: var(--bg-elevated); border-color: var(--border-dim); }
+.stage-item.selected { background: rgba(61,142,240,0.1); border-color: var(--accent-blue); }
+.stage-item input { margin-right: 8px; accent-color: var(--accent-blue); flex-shrink: 0; }
+
+.stage-info { flex: 1; min-width: 0; }
+.stage-name { font-size: 11px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stage-id { font-size: 9px; color: var(--text-dim); }
+
+.diff-badges { display: flex; gap: 3px; flex-shrink: 0; }
+.diff-badge {
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-size: 9px;
+  font-weight: 700;
+}
+.diff-select {
+  width: 56px;
+  margin-left: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  border-radius: 3px;
+  color: var(--accent-cyan);
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  outline: none;
+}
+.diff-select:focus { border-color: var(--accent-blue); }
+.diff-0 { background: var(--diff-h); color: #fff; }
+.diff-1 { background: var(--diff-h); color: #fff; }
+.diff-2 { background: var(--diff-z); color: #000; }
+.diff-3 { background: var(--diff-s); color: #fff; }
+.diff-4 { background: var(--diff-s2); color: #fff; }
+.diff-5 { background: var(--diff-s3); color: #fff; }
+
+.no-results {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 40px;
+  color: var(--text-dim);
+  font-size: 13px;
+  letter-spacing: 1px;
+  display: none;
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-title">Challenge</div>
+    <div class="stats-row">
+      <div class="stat-chip">Areas <span id="totalAreas">0</span></div>
+      <div class="stat-chip">Quests <span id="totalQuests">0</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Farm Queue -->
+<div class="farm-panel">
+  <div class="farm-header">
+    <div class="farm-title">Farm Queue</div>
+    <div class="farm-count" id="cnt">0</div>
+  </div>
+  <div class="queue" id="queue">
+    <span class="queue-empty">Click stages to add to farm queue...</span>
+  </div>
+  <div class="farm-btns">
+    <div class="run-wrap">
+      <span class="run-label">Runs</span>
+      <input type="number" class="run-input" id="runCount" value="1" min="1" max="999">
+    </div>
+    <button class="farm-btn go off" id="btnFarm" onclick="startFarm()">START FARM</button>
+    <button class="farm-btn clr" onclick="clearQueue()">CLEAR</button>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="filters-section">
+  <div class="filter-row" id="filterButtons">
+    <button class="f-btn active" data-filter="all">All</button>
+    <button class="f-btn" data-filter="bonus">Bonus</button>
+    <button class="f-btn" data-filter="challenge">Challenge</button>
+    <button class="f-btn" data-filter="dbstories">DB Stories</button>
+    <button class="f-btn" data-filter="dokkan">Dokkan</button>
+    <button class="f-btn" data-filter="eza">Extreme Z</button>
+    <button class="f-btn" data-filter="growth">Growth</button>
+    <button class="f-btn" data-filter="limited">Limited</button>
+    <button class="f-btn" data-filter="special">Special</button>
+    <button class="f-btn" data-filter="story">Story</button>
+    <button class="f-btn" data-filter="strike">Strike</button>
+  </div>
+  <div class="filter-row" id="statusFilters" style="display:none">
+    <button class="f-btn status-btn" data-status="all">All</button>
+    <button class="f-btn status-btn active-green" data-status="active">Active</button>
+    <button class="f-btn status-btn" data-status="inactive">Inactive</button>
+  </div>
+</div>
+
+<div class="search-row">
+  <input type="text" class="search-input" id="searchInput" placeholder="Search events...">
+</div>
+
+<div class="grid" id="eventsGrid"></div>
+<div class="no-results" id="noResults">No events found</div>
+
+<script>
+var eventsData={{EVENTS_DATA}};
+var bannerBasePath='{{BANNER_PATH}}';
+var PORT={{PORT}};
+var currentFilter='all',currentSearch='',currentStatus='all';
+var farmQueue=[];
+var diffNames={0:'N',1:'H',2:'Z',3:'S',4:'S2',5:'S3'};
+var statusSupportedFilters=['story','growth','strike','eza','special','dokkan'];
+var categoryMap={1:'quest',2:'special',4:'challenge',5:'challenge',6:'bonus',7:'story',8:'limited',9:'strike',10:'dokkan',11:'growth',12:'challenge'};
+var bonusAreaIds=[120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,223,253,267,274,293,1202];
+
+function normalizeDiffs(diffs){
+  var out=[];
+  for(var i=0;i<diffs.length;i++){
+    var d=parseInt(diffs[i]);
+    if(!isNaN(d)&&isFinite(d)&&out.indexOf(d)<0) out.push(d);
+  }
+  out.sort(function(a,b){return a-b;});
+  return out.length?out:[0];
+}
+
+function highestDiff(diffs){
+  var list=normalizeDiffs(diffs);
+  return list[list.length-1];
+}
+
+function getSelectedDiff(qid,diffs){
+  var sel=document.getElementById('diff-'+qid);
+  if(sel){
+    var v=parseInt(sel.value);
+    if(!isNaN(v)&&isFinite(v)) return v;
+  }
+  return highestDiff(diffs);
+}
+
+function changeStageDifficulty(e,qid){
+  e.stopPropagation();
+  var diff=parseInt(e.target.value);
+  if(isNaN(diff)||!isFinite(diff)) diff=0;
+  for(var i=0;i<farmQueue.length;i++){
+    if(farmQueue[i].id==qid){
+      farmQueue[i].difficulty=diff;
+      updateQueue();
+      updateCheckboxes();
+      return;
+    }
+  }
+}
+
+function getEventType(ev){
+  if(ev.isZbattle) return 'eza';
+  if(ev.id && String(ev.id).indexOf('zbattle_')===0) return 'eza';
+  var id=parseInt(ev.id);
+  if(id>=900&&id<1000) return 'dbstories';
+  if(ev.category===2) return 'special';
+  if(bonusAreaIds.indexOf(id)>=0) return 'bonus';
+  if(ev.category!==undefined&&categoryMap[ev.category]) return categoryMap[ev.category];
+  if(id>=700&&id<800) return 'challenge';
+  if(id>=500&&id<600) return 'challenge';
+  if(id>=400&&id<500) return 'growth';
+  if(id>=1&&id<100) return 'quest';
+  if(id>=100&&id<300) return 'story';
+  return 'other';
+}
+
+function escapeHtml(t){
+  var d=document.createElement('div');d.textContent=t;return d.innerHTML;
+}
+
+function updateStats(){
+  var q=0;
+  for(var i=0;i<eventsData.length;i++) q+=(eventsData[i].quests||[]).length;
+  document.getElementById('totalAreas').textContent=eventsData.length;
+  document.getElementById('totalQuests').textContent=q;
+}
+
+function createEventItem(ev){
+  var quests=ev.quests||[];
+  var badgeClass=ev.isActive?'active':'inactive';
+  var badgeText=ev.isActive?'ACTIVE':'INACTIVE';
+  var stagesHtml='';
+  for(var i=0;i<quests.length;i++){
+    var q=quests[i];
+    var diffs=normalizeDiffs(q.difficulties||[3]);
+    var defaultDiff=highestDiff(diffs);
+    var badges='';
+    var diffOptions='';
+    for(var j=0;j<diffs.length;j++){
+      badges+='<span class="diff-badge diff-'+diffs[j]+'">'+(diffNames[diffs[j]]||diffs[j])+'</span>';
+      diffOptions+='<option value="'+diffs[j]+'"'+(diffs[j]===defaultDiff?' selected':'')+'>'+(diffNames[diffs[j]]||diffs[j])+'</option>';
+    }
+    stagesHtml+='<div class="stage-item" data-qid="'+q.id+'" data-name="'+escapeHtml(q.name)+'" data-diffs="'+diffs.join(',')+'" onclick="toggleStage(event,\''+ev.id+'\',\''+q.id+'\',\''+escapeHtml(q.name)+'\',\''+diffs.join(',')+'\')">';
+    stagesHtml+='<input type="checkbox" id="chk-'+q.id+'">';
+    stagesHtml+='<div class="stage-info"><div class="stage-name">'+escapeHtml(q.name)+'</div><div class="stage-id">ID: '+q.id+'</div></div>';
+    stagesHtml+='<div class="diff-badges">'+badges+'</div><select class="diff-select" id="diff-'+q.id+'" onclick="event.stopPropagation()" onchange="changeStageDifficulty(event,\''+q.id+'\')">'+diffOptions+'</select></div>';
+  }
+  var bannerUrl;
+  if(ev.banner_image) bannerUrl=ev.banner_image;
+  else if(ev.isZbattle) bannerUrl=bannerBasePath+'/zbattle_list_banner_'+ev.zbattleId+'.png';
+  else if(ev.bannerSuffix) bannerUrl=bannerBasePath+'/quest_list_banner_'+ev.id+'_'+ev.bannerSuffix+'.png';
+  else bannerUrl=bannerBasePath+'/quest_list_banner_'+ev.id+'.png';
+
+  return '<div class="event-item" data-area-id="'+ev.id+'" data-name="'+escapeHtml(ev.name.toLowerCase())+'" data-type="'+getEventType(ev)+'" data-active="'+ev.isActive+'">'
+    +'<div class="event-banner-wrap" onclick="toggleExpand(\''+ev.id+'\')">'
+    +'<span class="event-badge '+badgeClass+'">'+badgeText+'</span>'
+    +'<img class="event-banner" src="'+bannerUrl+'" alt="'+escapeHtml(ev.name)+'" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';">'
+    +'<div class="event-placeholder" style="display:none">'+escapeHtml(ev.name.length>40?ev.name.substring(0,40)+'...':ev.name)+'</div>'
+    +'</div>'
+    +'<div class="stages-panel" id="stages-'+ev.id+'">'
+    +'<div class="stage-panel-header"><span class="stage-count">'+quests.length+' stages</span><div class="stage-ctrl-btns"><button class="ctrl-btn" onclick="selectAllArea(\''+ev.id+'\')">Select All</button><button class="ctrl-btn" onclick="deselectAllArea(\''+ev.id+'\')">Deselect</button></div></div>'
+    +'<div class="stage-list">'+stagesHtml+'</div>'
+    +'</div></div>';
+}
+
+function render(){
+  var filtered=[];
+  var useStatusFilter=statusSupportedFilters.indexOf(currentFilter)>=0;
+  for(var i=0;i<eventsData.length;i++){
+    var e=eventsData[i];
+    var evType=getEventType(e);
+    if(currentFilter!='all'&&evType!=currentFilter) continue;
+    if(useStatusFilter&&currentStatus!='all'){
+      if(currentStatus=='active'&&!e.isActive) continue;
+      if(currentStatus=='inactive'&&e.isActive) continue;
+    }
+    if(currentSearch&&e.name.toLowerCase().indexOf(currentSearch.toLowerCase())<0) continue;
+    filtered.push(e);
+  }
+  if(filtered.length==0){
+    document.getElementById('eventsGrid').innerHTML='';
+    document.getElementById('noResults').style.display='block';
+    return;
+  }
+  document.getElementById('noResults').style.display='none';
+  var html='';
+  for(var i=0;i<filtered.length;i++) html+=createEventItem(filtered[i]);
+  document.getElementById('eventsGrid').innerHTML=html;
+  updateCheckboxes();
+}
+
+function toggleExpand(areaId){
+  var panel=document.getElementById('stages-'+areaId);
+  var item=panel.parentElement;
+  var wasExpanded=panel.classList.contains('show');
+  document.querySelectorAll('.stages-panel.show').forEach(function(p){p.classList.remove('show');p.parentElement.classList.remove('expanded');});
+  if(!wasExpanded){panel.classList.add('show');item.classList.add('expanded');}
+}
+
+function toggleStage(e,areaId,qid,name,diffsStr){
+  e.stopPropagation();
+  var diffs=normalizeDiffs(diffsStr.split(',').filter(function(d){return d!=='';}).map(Number));
+  var selectedDiff=getSelectedDiff(qid,diffs);
+  var ev=null;
+  for(var i=0;i<eventsData.length;i++){if(String(eventsData[i].id)==String(areaId)){ev=eventsData[i];break;}}
+  var isActive=ev?ev.isActive:true;
+  var idx=-1;
+  for(var i=0;i<farmQueue.length;i++){if(farmQueue[i].id==qid){idx=i;break;}}
+  if(idx>=0) farmQueue.splice(idx,1);
+  else farmQueue.push({id:qid,name:name,difficulty:selectedDiff,areaId:areaId,isActive:isActive});
+  updateQueue();updateCheckboxes();
+}
+
+function selectAllArea(areaId){
+  var ev=null;
+  for(var i=0;i<eventsData.length;i++){if(String(eventsData[i].id)==String(areaId)){ev=eventsData[i];break;}}
+  if(!ev) return;
+  var quests=ev.quests||[];
+  for(var i=0;i<quests.length;i++){
+    var q=quests[i];
+    var exists=false;
+    for(var j=0;j<farmQueue.length;j++){if(farmQueue[j].id==q.id){exists=true;break;}}
+    if(!exists){
+      var diffs=normalizeDiffs(q.difficulties||[0]);
+      var selectedDiff=getSelectedDiff(q.id,diffs);
+      farmQueue.push({id:q.id,name:q.name,difficulty:selectedDiff,areaId:areaId,isActive:ev.isActive});
+    }
+  }
+  updateQueue();updateCheckboxes();
+}
+
+function deselectAllArea(areaId){
+  farmQueue=farmQueue.filter(function(q){return q.areaId!=areaId;});
+  updateQueue();updateCheckboxes();
+}
+
+function updateCheckboxes(){
+  document.querySelectorAll('.stage-item').forEach(function(item){
+    var qid=item.getAttribute('data-qid');
+    var inQueue=farmQueue.some(function(q){return q.id==qid;});
+    var chk=document.getElementById('chk-'+qid);
+    if(chk) chk.checked=inQueue;
+    if(inQueue){
+      for(var i=0;i<farmQueue.length;i++){
+        if(farmQueue[i].id==qid){
+          var sel=document.getElementById('diff-'+qid);
+          if(sel) sel.value=farmQueue[i].difficulty;
+          break;
+        }
+      }
+    }
+    item.classList.toggle('selected',inQueue);
+  });
+}
+
+function removeFromQueue(qid){
+  farmQueue=farmQueue.filter(function(q){return q.id!=qid;});
+  updateQueue();updateCheckboxes();
+}
+
+function updateQueue(){
+  var qEl=document.getElementById('queue');
+  var btn=document.getElementById('btnFarm');
+  document.getElementById('cnt').textContent=farmQueue.length;
+  if(farmQueue.length==0){
+    qEl.innerHTML='<span class="queue-empty">Click stages to add to farm queue...</span>';
+    btn.classList.add('off');
+  } else {
+    var h='';
+    for(var i=0;i<farmQueue.length;i++){
+      var q=farmQueue[i];
+      var keyBadge=q.isActive?'':'<span class="q-key">KEY</span>';
+      h+='<div class="queue-item"><span class="q-name" title="'+escapeHtml(q.name)+'">'+escapeHtml(q.name)+'</span><span class="q-diff">'+(diffNames[q.difficulty]||q.difficulty)+'</span>'+keyBadge+'<button class="q-rm" onclick="event.stopPropagation();removeFromQueue(\''+q.id+'\')">x</button></div>';
+    }
+    qEl.innerHTML=h;
+    btn.classList.remove('off');
+  }
+}
+
+function clearQueue(){farmQueue=[];updateQueue();updateCheckboxes();}
+
+function startFarm(){
+  if(farmQueue.length==0) return;
+  var runs=parseInt(document.getElementById('runCount').value)||1;
+  var stages=[];
+  for(var i=0;i<farmQueue.length;i++){
+    var q=farmQueue[i];
+    var useKey=q.isActive?0:1;
+    stages.push(q.id+','+q.difficulty+','+runs+','+useKey);
+  }
+  window.location.href='http://localhost:'+PORT+'/farm_stages?stages='+encodeURIComponent(stages.join(';'));
+}
+
+document.getElementById('searchInput').addEventListener('input',function(e){currentSearch=e.target.value;render();});
+
+document.getElementById('filterButtons').addEventListener('click',function(e){
+  if(e.target.classList.contains('f-btn')){
+    var filter=e.target.getAttribute('data-filter');
+    if(filter){
+      document.querySelectorAll('#filterButtons .f-btn').forEach(function(b){b.classList.remove('active');});
+      e.target.classList.add('active');
+      currentFilter=filter;
+      var statusDiv=document.getElementById('statusFilters');
+      if(statusSupportedFilters.indexOf(filter)>=0) statusDiv.style.display='flex';
+      else{statusDiv.style.display='none';currentStatus='all';}
+      render();
+    }
+  }
+});
+
+document.getElementById('statusFilters').addEventListener('click',function(e){
+  if(e.target.classList.contains('status-btn')){
+    var status=e.target.getAttribute('data-status');
+    if(status){
+      document.querySelectorAll('.status-btn').forEach(function(b){
+        b.classList.remove('active-green','active-gray','active');
+      });
+      e.target.classList.add(status==='active'?'active-green':status==='inactive'?'active-gray':'active');
+      currentStatus=status;
+      render();
+    }
+  }
+});
+
+updateStats();
+render();
+</script>
+</body>
+</html>

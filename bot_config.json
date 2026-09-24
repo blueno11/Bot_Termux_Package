@@ -1,0 +1,84 @@
+{
+  "auto_load": {
+    "delay_between_terminals": {
+      "min": 1,
+      "max": 2,
+      "description": "Random delay in seconds between opening terminals (min-max range)"
+    }
+  },
+  "auto_new": {
+    "delay_between_terminals": {
+      "min": 1,
+      "max": 2,
+      "description": "Random delay in seconds between opening terminals for new accounts"
+    }
+  },
+  "bulk_operations": {
+    "delay_between_terminals": {
+      "min": 2,
+      "max": 5,
+      "description": "Random delay in seconds for bulk operations"
+    }
+  },
+  "client_delays": {
+    "global": {
+      "min": 20,
+      "max": 21,
+      "description": "Delay for Global client operations (to avoid rate limiting)"
+    },
+    "japan": {
+      "min": 20,
+      "max": 21,
+      "description": "Delay for Japan client operations (to avoid rate limiting)"
+    }
+  },
+  "tutorial": {
+    "auto_gw_boards_max": 0,
+    "description": "For VIP users only: number of Greatest Warrior boards (1-5) to auto-complete after tutorial. 0 = disable."
+  },
+  "chrome_setup": {
+    "description": "IMPORTANT: Google login requires Chrome browser. If you get version mismatch error, update Chrome to latest version from https://www.google.com/chrome/",
+    "chrome_binary_path": "",
+    "note": "Only set chrome_binary_path if Chrome is in non-standard location (e.g., portable version). Leave empty to auto-detect. Example: 'C:\\\\Program Files\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe'"
+  },
+  "proxy": {
+    "enabled": false,
+    "description": "Global toggle for game API proxy (setproxy & applying proxy from saves). true = enable proxy; false = ignore proxy."
+  },
+  "stamina": {
+    "prefer_meat": false,
+    "use_stone": true,
+    "description": "prefer_meat: use meat items first, then stones. use_stone: allow Dragon Stones for stamina refill. If both are false, bot stops when out of stamina."
+  },
+  "game": {
+    "team_build": true,
+    "description": "team_build: auto build team based on stage limitations. Toggle ON/OFF from settings or 'tb' command."
+  },
+  "auto_sell": {
+    "enabled": true,
+    "description": "Automatically sell eligible N/R/SR cards while farming or when the card box is full. The explicit 'sell auto' command remains available when this is disabled."
+  },
+  "rank_up": {
+    "default_stage_id": "39003",
+    "default_difficulty": 3,
+    "description": "Default stage ID and difficulty for rank command (0=Easy, 1=Normal, 2=Hard, 3=Z-Hard). Used when not specified."
+  },
+  "blue_gems": {
+    "default_stage_id": "31008",
+    "description": "Blue gems (Incredible Gems). Command asks for target quantity and farms until reached. Optional: treasure_item_id (number) to override auto-detect."
+  },
+  "green_gems": {
+    "default_stage_id": "38006",
+    "description": "Green gems (Support Memory Gems). Command asks for target quantity and farms until reached. Optional: treasure_item_id (number) to override auto-detect."
+  },
+  "help": {
+    "language": "en",
+    "description": "Help menu language: en, fr, pt, es, it, hi (Hindi). Command names stay in English; only descriptions are translated."
+  },
+  "farm_link": {
+    "default_stage_id": "34004"
+  },
+  "gems": {
+    "default_difficulty": 3
+  }
+}

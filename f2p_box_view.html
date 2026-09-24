@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dokkan F2P Card Farm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+--bg-deep:#050a12;--bg-card:#0c1526;--bg-panel:#0f1d35;
+--border-dim:#1e3a5f;--border-bright:#2a5298;
+--accent-gold:#f5c518;--accent-blue:#3d8ef0;--accent-cyan:#00d4ff;
+--green-max:#00e676;--red-low:#ff4444;
+--text-primary:#e8f4fd;--text-secondary:#7ba7cc;--text-dim:#3d6080;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{min-height:100%;background:var(--bg-deep);color:var(--text-primary);font-family:'Rajdhani',sans-serif;overflow-x:hidden;color-scheme:dark}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(61,142,240,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(61,142,240,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;top:0;left:0;right:0;height:300px;background:radial-gradient(ellipse 80% 100% at 50% -20%,rgba(61,142,240,0.1) 0%,transparent 70%);pointer-events:none;z-index:0}
+*{scrollbar-width:none;-ms-overflow-style:none}
+*::-webkit-scrollbar{display:none;width:0;height:0}
+@media(max-width:480px){html,body{background:#02060d}body::before{background-image:linear-gradient(rgba(61,142,240,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(61,142,240,0.018) 1px,transparent 1px)}body::after{background:radial-gradient(ellipse 80% 100% at 50% -20%,rgba(61,142,240,0.055) 0%,transparent 72%)}}
+.page{position:relative;z-index:1}
+.header{background:linear-gradient(180deg,rgba(12,21,38,0.98) 0%,rgba(5,10,18,0.95) 100%);padding:12px 14px 10px;border-bottom:1px solid var(--border-dim);position:sticky;top:0;z-index:100}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.header-title{font-family:'Orbitron',monospace;font-size:15px;font-weight:900;letter-spacing:3px;color:var(--accent-gold);text-shadow:0 0 12px rgba(245,197,24,0.3)}
+.header-badge{font-family:'Orbitron',monospace;font-size:11px;color:var(--accent-cyan);background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);padding:3px 10px;border-radius:4px}
+.filter-top{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.sel{background:var(--bg-panel);border:1px solid var(--border-dim);color:var(--text-primary);padding:6px 10px;border-radius:5px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;cursor:pointer;outline:none}
+.sel:focus{border-color:var(--accent-blue)}
+.rarity-group{display:flex;gap:2px;background:var(--bg-panel);border:1px solid var(--border-dim);border-radius:5px;padding:3px}
+.tab-btn{padding:4px 10px;border:none;background:transparent;color:var(--text-secondary);border-radius:3px;cursor:pointer;font-family:'Orbitron',monospace;font-size:9px;font-weight:700;letter-spacing:0.5px;transition:all 0.15s}
+.tab-btn:hover{background:rgba(255,255,255,0.05);color:var(--text-primary)}
+.tab-btn.active{background:var(--accent-gold);color:#000}
+.action-section{padding:10px 14px;border-bottom:1px solid var(--border-dim)}
+.action-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.action-title{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--accent-gold)}
+.action-count{font-family:'Orbitron',monospace;font-size:12px;font-weight:700;color:var(--accent-gold);background:rgba(245,197,24,0.1);border:1px solid rgba(245,197,24,0.2);padding:2px 8px;border-radius:3px}
+.queue-wrap{min-height:56px;display:flex;gap:5px;flex-wrap:wrap;align-items:center;background:rgba(0,0,0,0.3);border:1px solid var(--border-dim);border-radius:5px;padding:6px;margin-bottom:8px}
+.queue-empty{color:var(--text-dim);font-size:11px;font-style:italic;letter-spacing:0.5px}
+.queue-item{position:relative;width:44px;height:44px}
+.queue-item img{width:100%;height:100%;object-fit:contain;border-radius:4px;border:1px solid var(--border-bright)}
+.queue-item .rm-btn{position:absolute;top:-5px;right:-5px;width:16px;height:16px;border-radius:50%;background:var(--red-low);color:#fff;border:none;font-size:9px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.action-btns{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.act-btn{padding:8px 12px;border:none;border-radius:5px;font-family:'Orbitron',monospace;font-size:9px;font-weight:700;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s}
+.act-btn.off{opacity:0.35;pointer-events:none}
+.act-btn.farm{background:linear-gradient(135deg,#1a5c2a,var(--green-max));color:#000}
+.act-btn.batch{background:linear-gradient(135deg,#8a5c1a,var(--accent-gold));color:#000}
+.act-btn.auto{background:linear-gradient(135deg,#4a1c7a,#9c27b0);color:#fff}
+.act-btn.clr{background:linear-gradient(135deg,#5c1a1a,var(--red-low));color:#fff}
+.act-input{padding:6px 8px;width:65px;text-align:center;background:var(--bg-panel);border:1px solid var(--border-dim);border-radius:5px;color:var(--text-primary);font-family:'Orbitron',monospace;font-size:11px;font-weight:700;outline:none}
+.act-input:focus{border-color:var(--accent-blue)}
+.act-select{padding:6px 10px;background:var(--bg-panel);border:1px solid var(--border-dim);border-radius:5px;color:var(--text-primary);font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;cursor:pointer;outline:none}
+.legend-section{padding:8px 14px;display:flex;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--border-dim)}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--text-secondary)}
+.legend-dot{width:10px;height:10px;border-radius:3px}
+.filters-section{padding:8px 14px;border-bottom:1px solid var(--border-dim)}
+.filters-grid{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.search-input{flex:1;min-width:160px;padding:6px 10px;background:var(--bg-panel);border:1px solid var(--border-dim);border-radius:5px;color:var(--text-primary);font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:500;outline:none}
+.search-input::placeholder{color:var(--text-dim)}
+.search-input:focus{border-color:var(--accent-blue)}
+.main-content{padding:10px 14px;background:url(https://sf-static.upanhlaylink.com/img/image_20260112511909f0798d42b46ab9cdcf9fbc3426.jpg) center/cover no-repeat;position:relative}
+.main-content::before{content:'';position:absolute;inset:0;background:rgba(5,10,18,0.7);pointer-events:none}
+.grid{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;justify-items:center}
+.grid.grid-more{grid-template-columns:repeat(8,1fr);gap:5px}
+.grid.grid-cols-15{grid-template-columns:repeat(15,80px);gap:1px 35px;justify-content:start;justify-items:center}
+.grid.grid-cols-15 .card-frame{width:80px;height:100px}
+.grid.grid-cols-15 .card-layer.card-bg{width:100px;height:100px}
+.grid.grid-cols-15 .card-layer.card-thumb{width:125px;height:125px}
+.grid.grid-cols-15 .card-layer.card-type{width:50px;height:50px}
+.grid.grid-cols-15 .card-layer.card-rarity{width:50px;height:50px}
+.grid.grid-cols-15 .card-bg-bottom{width:100px;left:10px;margin-top:13px}
+.grid.grid-cols-15 .hp{font-size:12px}
+.grid.grid-more .card-frame{width:64px;height:80px}
+.grid.grid-more .card-layer.card-bg{width:80px;height:80px}
+.grid.grid-more .card-layer.card-thumb{width:100px;height:100px}
+.grid.grid-more .card-layer.card-type,.grid.grid-more .card-layer.card-rarity{width:36px;height:36px}
+.grid.grid-more .card-bg-bottom{width:80px;left:6px;margin-top:8px}
+.grid.grid-more .hp{font-size:10px}
+.main-content{overflow-x:auto}
+.card{cursor:pointer;transition:transform 0.12s;position:relative}
+.card:hover{transform:scale(1.07);z-index:5}
+.card-inner{border-radius:5px;overflow:visible;position:relative}
+.card.sel .card-inner{outline:2px solid var(--green-max);outline-offset:1px;border-radius:5px}
+.card-frame{display:grid;width:80px;height:100px;overflow:visible;position:relative}
+.card-layer{grid-column:1;grid-row:1;pointer-events:none}
+.card-layer.card-bg{width:100px;height:100px;justify-self:center;align-self:center}
+.card-layer.card-bg img{width:100%;height:100%;display:block}
+.card-layer.card-thumb{width:125px;height:125px;justify-self:center;align-self:center}
+.card-layer.card-thumb img{width:100%;height:100%;display:block}
+.card-layer.card-type{width:50px;height:50px;justify-self:end;align-self:start}
+.card-layer.card-type img{width:100%;height:100%;object-fit:contain}
+.card-layer.card-rarity{width:50px;height:50px;justify-self:start;align-self:end}
+.card-layer.card-rarity img{width:100%;height:100%;object-fit:contain}
+.card-badge-layer{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none}
+.card-source{position:absolute;top:2px;left:2px;padding:1px 5px;border-radius:3px;font-family:'Orbitron',monospace;font-size:7px;font-weight:700}
+.card-source.story{background:var(--accent-gold);color:#000}
+.card-source.strike{background:var(--red-low);color:#fff}
+.card-source.growth{background:#9c27b0;color:#fff}
+.card-lr{position:absolute;top:13px;left:2px;background:var(--accent-cyan);color:#000;padding:1px 5px;border-radius:3px;font-family:'Orbitron',monospace;font-size:7px;font-weight:700}
+.card-active{position:absolute;top:24px;left:2px;background:var(--green-max);color:#000;padding:1px 5px;border-radius:3px;font-family:'Orbitron',monospace;font-size:7px;font-weight:700}
+.card-inactive{position:absolute;top:24px;left:2px;background:var(--text-dim);color:#fff;padding:1px 5px;border-radius:3px;font-family:'Orbitron',monospace;font-size:7px;font-weight:700}
+.card-count{position:absolute;bottom:4px;padding:1px 5px;border-radius:3px;font-family:'Orbitron',monospace;font-size:9px;font-weight:700;z-index:20;color:#fff}
+.card-pos{position:absolute;bottom:2px;left:2px;background:var(--accent-gold);color:#000;padding:1px 5px;border-radius:3px;font-family:'Orbitron',monospace;font-size:8px;font-weight:700}
+.card-bg-bottom{width:100px;height:auto;position:relative;margin-top:13px;left:10px}
+.card-bg-bottom img{width:100%;height:100%;object-fit:cover;display:block;border-radius:3px}
+.card-info-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2}
+.hp{font-family:'Orbitron',monospace;font-size:12px;font-weight:700;color:#fff;text-shadow:1px 1px 3px #000,0 0 6px #000}
+.pagi-wrap{position:relative;padding:10px 14px 6px}
+.pagi{display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap}
+.pagi-btn{padding:5px 10px;border:1px solid var(--border-dim);background:var(--bg-panel);color:var(--text-secondary);border-radius:4px;cursor:pointer;font-family:'Orbitron',monospace;font-size:9px;font-weight:700;transition:all 0.15s}
+.pagi-btn:hover{border-color:var(--accent-blue);color:var(--text-primary)}
+.pagi-btn.active{background:linear-gradient(135deg,#b8891a,var(--accent-gold));color:#000;border-color:var(--accent-gold)}
+.pagi-btn:disabled{opacity:0.3;cursor:not-allowed;pointer-events:none}
+.pagi-count{color:var(--text-secondary);font-size:11px;font-weight:600}
+.page-goto{display:flex;align-items:center;justify-content:center;gap:8px;padding:6px 14px 10px}
+.page-goto span{color:var(--text-secondary);font-size:12px;font-weight:600}
+.page-goto input{width:56px;padding:5px;text-align:center;background:var(--bg-panel);border:1px solid var(--border-dim);border-radius:4px;color:var(--text-primary);font-family:'Orbitron',monospace;font-size:11px;font-weight:700;outline:none}
+.page-goto input:focus{border-color:var(--accent-blue)}
+
+/* ── Mobile tweaks ── */
+@media (max-width: 600px){
+  .header{padding:8px 10px}
+  .header-top{margin-bottom:7px}
+  .header-title{font-size:13px;letter-spacing:2px}
+  .header-badge{font-size:10px;padding:2px 8px}
+  .filter-top{gap:4px}
+  .action-section,.legend-section,.filters-section,.pagi-wrap{padding-left:10px;padding-right:10px}
+  .action-section{padding-top:8px;padding-bottom:8px}
+  .main-content{padding:8px 8px}
+  .sel{padding:5px 7px;font-size:11px}
+  .tab-btn{padding:4px 8px;font-size:8px}
+  .search-input{min-width:120px;font-size:11px}
+  /* action btns wrap nicely */
+  .action-btns{gap:5px}
+  .act-btn{font-size:8px;padding:7px 9px}
+  .act-input{width:52px;font-size:10px;padding:5px 6px}
+  .act-select{font-size:11px;padding:5px 6px}
+  /* legend compact */
+  .legend-section{gap:8px;padding-top:6px;padding-bottom:6px}
+  .legend-item{font-size:10px}
+  /* queue thumbnails */
+  .queue-item{width:38px;height:38px}
+  .queue-item img{height:38px}
+  /* grid & cards */
+  .grid{grid-template-columns:repeat(4,1fr);gap:5px}
+  .card-frame{width:68px;height:85px}
+  .card-layer.card-bg{width:85px;height:85px}
+  .card-layer.card-thumb{width:106px;height:106px}
+  .card-layer.card-type,.card-layer.card-rarity{width:40px;height:40px}
+  .card-bg-bottom{width:85px;left:8px;margin-top:9px}
+  .hp{font-size:9px}
+  /* badge labels smaller */
+  .card-source,.card-lr,.card-active,.card-inactive{font-size:6px;padding:1px 3px}
+  .card-count{font-size:8px;padding:1px 4px}
+  .card-pos{font-size:7px;padding:1px 3px}
+  /* pagination */
+  .pagi-btn{padding:4px 7px;font-size:8px}
+  .page-goto{gap:5px;padding:5px 10px 8px}
+  .page-goto input{width:44px;font-size:10px}
+}
+@media (max-width: 380px){
+  .grid{grid-template-columns:repeat(3,1fr);gap:5px}
+  .card-frame{width:76px;height:95px}
+  .card-layer.card-bg{width:95px;height:95px}
+  .card-layer.card-thumb{width:118px;height:118px}
+  .card-layer.card-type,.card-layer.card-rarity{width:44px;height:44px}
+  .card-bg-bottom{width:95px;left:9px;margin-top:10px}
+  .hp{font-size:9px}
+}
+@media(max-width:480px){
+  .grid,.grid.grid-more,.grid.grid-cols-15{grid-template-columns:repeat(auto-fill,76px);justify-content:center;justify-items:center;align-items:start;gap:8px 4px}
+  .card{width:76px;min-width:76px;display:flex;justify-content:center}
+  .card-inner{width:76px;display:flex;flex-direction:column;align-items:center}
+  .card-frame,.grid.grid-more .card-frame,.grid.grid-cols-15 .card-frame{width:76px;max-width:none;height:68px;margin:0 auto}
+  .card-layer.card-bg,.grid.grid-more .card-layer.card-bg,.grid.grid-cols-15 .card-layer.card-bg{width:68px;height:68px}
+  .card-layer.card-thumb,.grid.grid-more .card-layer.card-thumb,.grid.grid-cols-15 .card-layer.card-thumb{width:82px;height:82px}
+  .card-layer.card-thumb img,.grid.grid-more .card-layer.card-thumb img,.grid.grid-cols-15 .card-layer.card-thumb img{width:100%;height:100%;display:block}
+  .card-layer.card-type,.card-layer.card-rarity,.grid.grid-more .card-layer.card-type,.grid.grid-more .card-layer.card-rarity,.grid.grid-cols-15 .card-layer.card-type,.grid.grid-cols-15 .card-layer.card-rarity{width:28px;height:28px}
+  .card-layer.card-rarity img,.grid.grid-more .card-layer.card-rarity img,.grid.grid-cols-15 .card-layer.card-rarity img{width:100%;height:100%;object-fit:contain}
+  .card-bg-bottom,.grid.grid-more .card-bg-bottom,.grid.grid-cols-15 .card-bg-bottom{width:68px;left:0;margin-top:5px}
+}
+</style></head><body>
+<div class="page">
+<header class="header">
+<div class="header-top">
+<div class="header-title">F2P CARD FARM</div>
+<div class="header-badge"><span id="totalCount">0</span> CARDS</div>
+</div>
+<div class="filter-top">
+<select id="fSort" class="sel" onchange="flt()">
+<option value="count_d">Copies ↓</option>
+<option value="count_a">Copies ↑</option>
+<option value="cost_d">Cost ↓</option>
+<option value="cost_a">Cost ↑</option>
+<option value="id_d">ID ↓</option>
+<option value="id_a">ID ↑</option>
+</select>
+<select id="fElem" class="sel" onchange="flt()">
+<option value="">All Types</option>
+<option>STR</option><option>AGL</option><option>PHY</option><option>TEQ</option><option>INT</option>
+</select>
+<select id="fRarity" class="sel" onchange="flt()"><option value="">All Rarity</option><option>LR</option><option>UR</option><option>SSR</option><option>SR</option><option>R</option><option>N</option></select>
+<select id="fC" class="sel" onchange="flt()"><option value="">All Class</option><option value="S">Super</option><option value="E">Extreme</option></select>
+<select id="fCost" class="sel" onchange="flt()" style="min-width:70px"><option value="">Cost</option><option value="99">99</option><option value="77">77</option><option value="58">58</option><option value="50">50</option><option value="42">42</option><option value="40">40</option><option value="30">30</option><option value="26">26</option><option value="25">25</option><option value="24">24</option><option value="21">21</option><option value="20">20</option><option value="19">19</option><option value="18">18</option><option value="17">17</option><option value="16">16</option><option value="15">15</option><option value="14">14</option><option value="13">13</option><option value="12">12</option><option value="9">9</option><option value="8">8</option><option value="7">7</option><option value="6">6</option></select>
+<div class="rarity-group">
+<button class="tab-btn active" onclick="fltType('')">ALL</button>
+<button class="tab-btn" onclick="fltType('lr')">LR-ABLE</button>
+<button class="tab-btn" onclick="fltType('ready')">READY</button>
+<button class="tab-btn" onclick="fltType('need')">NEED</button>
+</div>
+</div>
+</header>
+<div class="action-section">
+<div class="action-header">
+<div class="action-title">SELECTED CARDS</div>
+<div class="action-count" id="qcnt">0</div>
+</div>
+<div class="queue-wrap" id="queue"><span class="queue-empty">Click cards to select for batch processing...</span></div>
+<div class="action-btns">
+<input type="number" id="farmCount" value="15" min="1" max="100" class="act-input">
+<button class="act-btn farm off" id="btnFarm" onclick="doFarm()">FARM (1 CARD)</button>
+<button class="act-btn batch off" id="btnFarmBatch" onclick="doFarmBatch()">FARM BATCH</button>
+<label style="display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--text-secondary)"><span>Max:</span><select id="maxRarity" onchange="upQ();flt();" class="act-select"><option value="UR">UR only</option><option value="LR" selected>LR (max)</option></select></label>
+<button class="act-btn auto off" id="btnAuto" onclick="doAutoBatch()">AUTO PROCESS</button>
+<button class="act-btn clr" onclick="clrQ()">CLEAR</button>
+</div>
+</div>
+<div class="legend-section">
+<div class="legend-item"><div class="legend-dot" style="background:var(--accent-cyan)"></div><span>Can become LR</span></div>
+<div class="legend-item"><div class="legend-dot" style="background:var(--green-max)"></div><span>Ready (DB plan)</span></div>
+<div class="legend-item"><div class="legend-dot" style="background:var(--red-low)"></div><span>Need more</span></div>
+<div class="legend-item"><div class="legend-dot" style="background:var(--green-max)"></div><span>Active</span></div>
+<div class="legend-item"><div class="legend-dot" style="background:var(--text-dim)"></div><span>Inactive</span></div>
+</div>
+<div class="filters-section">
+<div class="filters-grid">
+<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;font-weight:600;color:var(--text-secondary);user-select:none">
+<input type="checkbox" id="fShowMore" onchange="toggleShowMore();rnd()" style="display:none">
+<div style="width:13px;height:13px;border:1.5px solid var(--text-dim);border-radius:2px;flex-shrink:0;position:relative;transition:all 0.15s" class="chk-box-more"></div>
+<span>Show More Mobile</span>
+</label>
+<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;font-weight:600;color:var(--text-secondary);user-select:none">
+<input type="checkbox" id="fShow15PerRow" onchange="toggle15PerRow();rnd()" style="display:none">
+<div style="width:13px;height:13px;border:1.5px solid var(--text-dim);border-radius:2px;flex-shrink:0;position:relative;transition:all 0.15s" class="chk-box-15"></div>
+<span>Show More PC</span>
+</label>
+<input type="text" id="fName" class="search-input" oninput="debounceFlt()" placeholder="Search name...">
+</div>
+</div>
+<div class="filters-section">
+<div class="filters-grid">
+<select id="fStatus" class="sel" onchange="flt()"><option value="">All Status</option><option value="active">Active</option><option value="inactive">Inactive</option></select>
+<select id="fSource" class="sel" onchange="flt()"><option value="">All Source</option><option value="story">Story</option><option value="strike">Strike</option><option value="growth">Growth/Prime</option></select>
+<select id="fCat" class="sel" onchange="flt()">
+<option value="">All Categories</option>
+<option value="1">Fusion</option>
+<option value="2">Shadow Dragon Saga</option>
+<option value="3">World Tournament</option>
+<option value="4">Peppy Gals</option>
+<option value="5">Hybrid Saiyans</option>
+<option value="6">Universe Survival Saga</option>
+<option value="7">Resurrected Warriors</option>
+<option value="8">Realm of Gods</option>
+<option value="9">Majin Buu Saga</option>
+<option value="10">Potara</option>
+<option value="11">Low-Class Warrior</option>
+<option value="12">Super Saiyan 3</option>
+<option value="13">Giant Form</option>
+<option value="14">Planet Namek Saga</option>
+<option value="15">Ginyu Force</option>
+<option value="16">Movie Bosses</option>
+<option value="17">Pure Saiyans</option>
+<option value="18">Namekians</option>
+<option value="19">Future Saga</option>
+<option value="20">Full Power</option>
+<option value="21">Androids</option>
+<option value="22">Representatives of Universe 7</option>
+<option value="23">Transformation Boost</option>
+<option value="24">Wicked Bloodline</option>
+<option value="25">Dragon Ball Seekers</option>
+<option value="26">Time Travelers</option>
+<option value="27">Universe 6</option>
+<option value="28">Joined Forces</option>
+<option value="29">Movie Heroes</option>
+<option value="30">Goku's Family</option>
+<option value="31">Vegeta's Family</option>
+<option value="32">Artificial Life Forms</option>
+<option value="33">Youth</option>
+<option value="34">DB Saga</option>
+<option value="35">Siblings' Bond</option>
+<option value="36">Super Saiyans</option>
+<option value="37">Worthy Rivals</option>
+<option value="38">Androids/Cell Saga</option>
+<option value="39">Kamehameha</option>
+<option value="40">Bond of Master and Disciple</option>
+<option value="41">Terrifying Conquerors</option>
+<option value="42">Dragon Ball Heroes</option>
+<option value="43">Target: Goku</option>
+<option value="44">Otherworld Warriors</option>
+<option value="45">Super Saiyan 2</option>
+<option value="46">Final Trump Card</option>
+<option value="47">Exploding Rage</option>
+<option value="48">Revenge</option>
+<option value="49">Team Bardock</option>
+<option value="50">Inhuman Deeds</option>
+<option value="51">Earthlings</option>
+<option value="52">Special Pose</option>
+<option value="53">Majin Power</option>
+<option value="54">Rapid Growth</option>
+<option value="55">All-Out Struggle</option>
+<option value="56">Universe 11</option>
+<option value="57">Saviors</option>
+<option value="58">Battle of Wits</option>
+<option value="59">Power Absorption</option>
+<option value="60">Giant Ape Power</option>
+<option value="61">Crossover</option>
+<option value="62">Space-Traveling Warriors</option>
+<option value="63">Connected Hope</option>
+<option value="64">Corroded Body and Mind</option>
+<option value="65">Turtle School</option>
+<option value="66">Miraculous Awakening</option>
+<option value="67">Powerful Comeback</option>
+<option value="68">Gifted Warriors</option>
+<option value="69">Planetary Destruction</option>
+<option value="70">Defenders of Justice</option>
+<option value="71">Storied Figures</option>
+<option value="72">GT Heroes</option>
+<option value="73">GT Bosses</option>
+<option value="74">Heavenly Events</option>
+<option value="75">Time Limit</option>
+<option value="76">Mastered Evolution</option>
+<option value="77">Legendary Existence</option>
+<option value="78">Sworn Enemies</option>
+<option value="79">Bond of Friendship</option>
+<option value="80">Accelerated Battle</option>
+<option value="81">Entrusted Will</option>
+<option value="82">Worldwide Chaos</option>
+<option value="83">Battle of Fate</option>
+<option value="84">Power Beyond Super Saiyan</option>
+<option value="85">Fused Fighters</option>
+<option value="86">Saiyan Saga</option>
+<option value="87">Bond of Parent and Child</option>
+<option value="88">Super Heroes</option>
+<option value="89">Earth-Bred Fighters</option>
+<option value="90">Power of Wishes</option>
+<option value="91">Tournament Participants</option>
+<option value="92">Super Bosses</option>
+<option value="93">Demonic Power</option>
+<option value="94">Uncontrollable Power</option>
+<option value="95">Earth-Protecting Heroes</option>
+<option value="96">Successors</option>
+<option value="97">Mission Execution</option>
+<option value="98">DAIMA</option>
+</select>
+</div>
+</div>
+<main class="main-content">
+<div class="grid" id="grid"></div>
+</main>
+<div class="pagi-wrap">
+<div class="pagi" id="pagi"></div>
+</div>
+<div class="page-goto">
+<span>Page</span>
+<input type="number" id="pageNum" min="1" onchange="goPage()">
+</div>
+<div class="path-tip" style="position:fixed;left:0;right:0;bottom:0;z-index:50;padding:6px 10px;background:rgba(10,14,26,.92);border-top:1px solid var(--border);font-size:11px;color:var(--text-secondary);text-align:center">Use farm f2pauto for premium AUTO MAX ACTIVE. It farms missing copies for active cards, then uses DB path to SA, awaken, and unlock HP.</div>
+</div>
+<script>
+var D=[],F=[],Q=[],curType='';
+var PORT=0;
+var PAGE=0,PER_PAGE=50;
+var BASE='https://glben.dokkaninfo.com/assets/global/en';
+try{D=__DATA__;PORT=__PORT__;}catch(e){console.error('Error loading data:',e);}
+var rarImg={'LR':BASE+'/layout/en/image/character/cha_rare_sm_lr.png','UR':BASE+'/layout/en/image/character/cha_rare_sm_ur.png','SSR':BASE+'/layout/en/image/character/cha_rare_sm_ssr.png','SR':BASE+'/layout/en/image/character/cha_rare_sm_sr.png','R':BASE+'/layout/en/image/character/cha_rare_sm_r.png','N':BASE+'/layout/en/image/character/cha_rare_sm_n.png'};
+var isTermux=navigator.userAgent.toLowerCase().indexOf('android')>-1;
+function proxyImg(url){if(!isTermux)return url;if(!url)return url;if(url.startsWith('http://localhost')||url.startsWith('http://127.0.0.1'))return url;var cleanUrl=url.replace(/^https?:\/\//,'');return 'http://localhost:'+PORT+'/proxy_img/'+cleanUrl;}
+var typCode={'AGL':'00','TEQ':'01','INT':'02','STR':'03','PHY':'04'};
+var rarCode={'N':'01','R':'02','SR':'03','SSR':'04','UR':'04','LR':'05'};
+var bgBottomImg={'AGL':'BackgroudAGL.png','TEQ':'BackgroudTEQ.png','INT':'Backgroudint.png','STR':'BackgroudSTR.png','PHY':'BackgroudPhy.png'};
+function needForCard(x){var maxRarity=(document.getElementById('maxRarity')&&document.getElementById('maxRarity').value)==='UR'?'UR':'LR';return maxRarity==='UR'?(x.requiredCopiesUR||x.requiredCopies||15):(x.requiredCopies||15);}
+function getBgUrl(rar,typ){return proxyImg(BASE+'/layout/en/image/character/character_thumb_bg/cha_base_'+(typCode[typ]||'00')+'_'+(rarCode[rar]||'04')+'.png');}
+function getTypeUrl(elem){var e=parseInt(elem)||0;var padded=(e<10?'0':'')+e;return proxyImg(BASE+'/layout/en/image/character/cha_type_icon_'+padded+'.png');}
+function stats(){document.getElementById("totalCount").textContent=D.length;}
+function fltType(t){curType=t;var tabs=document.querySelectorAll('.rarity-group .tab-btn');for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('active');event.target.classList.add('active');flt();}
+function flt(){
+var status=document.getElementById("fStatus").value;
+var source=document.getElementById("fSource").value;
+var elem=document.getElementById("fElem").value;
+var rarity=document.getElementById("fRarity").value;
+var cls=document.getElementById("fC").value;
+var cat=document.getElementById("fCat").value;
+var costVal=document.getElementById("fCost").value;
+var sort=document.getElementById("fSort").value;
+var name=document.getElementById("fName").value.toLowerCase();
+F=[];
+for(var i=0;i<D.length;i++){
+var x=D[i];
+if(curType=="lr"&&!x.canLR)continue;
+if(curType=="ready"&&x.count<needForCard(x))continue;
+if(curType=="need"&&x.count>=needForCard(x))continue;
+if(status=="active"&&!x.isActive)continue;
+if(status=="inactive"&&x.isActive)continue;
+if(source&&x.source!=source)continue;
+if(elem&&x.typ!=elem)continue;
+if(rarity&&x.rar!=rarity)continue;
+if(cls&&x.cls!=cls)continue;
+if(cat&&(!x.cats||x.cats.indexOf(parseInt(cat))<0))continue;
+if(costVal&&(x.cost|0)!==parseInt(costVal,10))continue;
+if(name&&x.name.toLowerCase().indexOf(name)<0)continue;
+F.push(x);
+}
+var p=sort.split("_"),fld=p[0],dir=p[1];
+F.sort(function(a,b){var va=a[fld],vb=b[fld];return dir=="d"?vb-va:va-vb;});
+PAGE=0;rnd();
+}
+function rnd(){
+var gr=document.getElementById("grid");
+var start=PAGE*PER_PAGE,end=Math.min(start+PER_PAGE,F.length),h="";
+for(var i=start;i<end;i++){
+var x=F[i];
+var selIdx=Q.findIndex(function(q){return q.id==x.id;});
+var sel=selIdx>=0;
+var need=needForCard(x);
+var bgUrl=getBgUrl(x.rar||'SSR',x.typ);
+var typeUrl=getTypeUrl(x.elem);
+var ri=proxyImg(rarImg[x.rar||'SSR']||rarImg['SSR']);
+h+='<div class="card'+(sel?" sel":"")+'" onclick="tog('+x.id+')">';
+h+='<div class="card-inner"><div class="card-frame">';
+h+='<div class="card-layer card-bg"><img src="'+bgUrl+'" loading="lazy"></div>';
+h+='<div class="card-layer card-thumb"><img src="'+proxyImg(x.th)+'" loading="lazy"></div>';
+h+='<div class="card-layer card-type"><img src="'+typeUrl+'"></div>';
+h+='<div class="card-layer card-rarity"><img src="'+ri+'"></div>';
+h+='</div>';
+h+='<div class="card-badge-layer">';
+var srcLabel={'story':'STORY','strike':'STRIKE','growth':'GROWTH'};
+if(x.source&&srcLabel[x.source])h+='<span class="card-source '+x.source+'">'+srcLabel[x.source]+'</span>';
+if(x.canLR)h+='<span class="card-lr">→LR</span>';
+if(x.isActive)h+='<span class="card-active">ACTIVE</span>';
+else h+='<span class="card-inactive">INACTIVE</span>';
+if(sel)h+='<span class="card-pos">'+(selIdx+1)+'</span>';
+h+='<span class="card-count" title="'+(x.path||'')+'" style="background:'+(x.count>=need?'var(--green-max)':'var(--red-low)')+'">x'+x.count+'/'+need+'</span>';
+h+='</div>';
+h+='<div class="card-bg-bottom"><img src="'+bgBottomImg[x.typ]+'" loading="lazy">';
+h+='<div class="card-info-overlay"><div class="hp">'+x.id+'</div></div>';
+h+='</div>';
+h+='</div></div>';
+}
+gr.innerHTML=h;pagi();
+}
+function pagi(){
+var total=Math.ceil(F.length/PER_PAGE)||1,h='<span class="pagi-count">'+F.length+' cards</span>';
+h+='<button class="pagi-btn" onclick="PAGE=0;rnd()"'+(PAGE==0?' disabled':'')+'>&laquo;</button>';
+h+='<button class="pagi-btn" onclick="PAGE--;rnd()"'+(PAGE==0?' disabled':'')+'>&lt;</button>';
+var st=Math.max(0,PAGE-2),en=Math.min(total,st+5);
+for(var i=st;i<en;i++){
+h+='<button class="pagi-btn'+(i==PAGE?' active':'')+'" onclick="PAGE='+i+';rnd()">'+(i+1)+'</button>';
+}
+h+='<button class="pagi-btn" onclick="PAGE++;rnd()"'+(PAGE>=total-1?' disabled':'')+'>&gt;</button>';
+h+='<button class="pagi-btn" onclick="PAGE='+(total-1)+';rnd()"'+(PAGE>=total-1?' disabled':'')+'>&raquo;</button>';
+document.getElementById("pagi").innerHTML=h;
+document.getElementById("pageNum").value=PAGE+1;
+document.getElementById("pageNum").max=total;
+}
+function goPage(){var v=parseInt(document.getElementById("pageNum").value)||1,total=Math.ceil(F.length/PER_PAGE)||1;PAGE=Math.max(0,Math.min(total-1,v-1));rnd();}
+function tog(id){
+var x=D.find(function(d){return d.id==id;});
+if(!x)return;
+var idx=Q.findIndex(function(q){return q.id==id;});
+if(idx>=0)Q.splice(idx,1);
+else Q.push(x);
+upQ();rnd();
+}
+function rmQ(id){Q=Q.filter(function(q){return q.id!=id;});upQ();rnd();}
+function upQ(){
+var q=document.getElementById("queue"),btnFarm=document.getElementById("btnFarm"),btnFarmBatch=document.getElementById("btnFarmBatch"),btnAuto=document.getElementById("btnAuto");
+document.getElementById("qcnt").textContent=Q.length;
+if(Q.length==0){
+q.innerHTML='<span class="queue-empty">Click cards to select for batch processing...</span>';
+btnFarm.classList.add("off");btnFarmBatch.classList.add("off");btnAuto.classList.add("off");
+}else{
+var h="",readyCount=0;
+for(var i=0;i<Q.length;i++){
+var x=Q[i];
+var need=needForCard(x);
+var ready=x.count>=need;
+if(ready)readyCount++;
+h+='<div class="queue-item"><img src="'+proxyImg(x.th)+'"><button class="rm-btn" onclick="event.stopPropagation();rmQ('+x.id+')">X</button></div>';
+}
+q.innerHTML=h;
+btnFarm.classList.toggle("off",Q.length!=1);
+btnFarmBatch.classList.toggle("off",Q.length==0);
+btnAuto.classList.toggle("off",readyCount==0);
+}
+}
+function clrQ(){Q=[];upQ();rnd();}
+function toggleShowMore(){var gr=document.getElementById('grid'),chk=document.getElementById('fShowMore'),box=document.querySelector('.chk-box-more');if(chk&&chk.checked){gr.classList.add('grid-more');PER_PAGE=100;box.style.background='var(--accent-blue)';box.style.borderColor='var(--accent-blue)';}else{if(gr)gr.classList.remove('grid-more');PER_PAGE=50;box.style.background='';box.style.borderColor='var(--text-dim)';}PAGE=0;rnd();}
+function toggle15PerRow(){var gr=document.getElementById('grid'),chk=document.getElementById('fShow15PerRow'),box=document.querySelector('.chk-box-15');if(chk&&chk.checked){gr.classList.add('grid-cols-15');PER_PAGE=100;box.style.background='var(--accent-blue)';box.style.borderColor='var(--accent-blue)';}else{gr.classList.remove('grid-cols-15');if(!(document.getElementById('fShowMore')&&document.getElementById('fShowMore').checked))PER_PAGE=50;box.style.background='';box.style.borderColor='var(--text-dim)';}PAGE=0;rnd();}
+function debounceFlt(){clearTimeout(window.fltTimer);window.fltTimer=setTimeout(flt,150);}
+function doFarm(){
+if(Q.length!=1)return;
+var count=document.getElementById("farmCount").value||15;
+window.location.href='http://127.0.0.1:'+PORT+'/f2p_farm?id='+Q[0].id+'&count='+count;
+}
+function doAutoBatch(){
+if(Q.length==0)return;
+var maxRarity=document.getElementById('maxRarity').value||'LR';
+var ids=[];
+for(var i=0;i<Q.length;i++){var x=Q[i];if(x.count>=needForCard(x))ids.push(x.id);}
+if(ids.length==0){alert('No cards ready for auto process!');return;}
+window.location.href='http://127.0.0.1:'+PORT+'/f2p_auto_batch?ids='+ids.join(',')+'&max_rarity='+maxRarity;
+}
+function doFarmBatch(){
+if(Q.length==0)return;
+var count=document.getElementById("farmCount").value||15;
+var ids=[];for(var i=0;i<Q.length;i++)ids.push(Q[i].id);
+window.location.href='http://127.0.0.1:'+PORT+'/f2p_farm_batch?ids='+ids.join(',')+'&count='+count;
+}
+stats();flt();
+</script></body></html>
